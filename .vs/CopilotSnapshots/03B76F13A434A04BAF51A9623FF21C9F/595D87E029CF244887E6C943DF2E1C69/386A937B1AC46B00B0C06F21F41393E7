@@ -1,0 +1,99 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+using TestDatabaseApp.Models;
+using TestDatabaseApp.Services;
+
+namespace TestDatabaseApp.ViewModels
+{
+    [QueryProperty(nameof(UserId), "userId")]
+    public class UserDashboardViewModel : BaseViewModel, IQueryAttributable
+    {
+        private readonly TestDatabaseService _db;
+
+        private User _currentUser;
+        private int _totalTests;
+        private int _completedLessons;
+        private int _totalRewards;
+        private double _averageScore;
+
+        public string UserId { get; set; }
+
+        public User CurrentUser
+        {
+            get => _currentUser;
+            set => SetProperty(ref _currentUser, value);
+        }
+
+        public int TotalTests
+        {
+            get => _totalTests;
+            set => SetProperty(ref _totalTests, value);
+        }
+
+        public int CompletedLessons
+        {
+            get => _completedLessons;
+            set => SetProperty(ref _completedLessons, value);
+        }
+
+        public int TotalRewards
+        {
+            get => _totalRewards;
+            set => SetProperty(ref _totalRewards, value);
+        }
+
+        public double AverageScore
+        {
+            get => _averageScore;
+            set => SetProperty(ref _averageScore, value);
+        }
+
+        public ObservableCollection<UserTestSummary> RecentTests { get; } = new();
+
+        public ICommand BackCommand { get; }
+        public ICommand OpenTestCommand { get; }
+
+        public UserDashboardViewModel(TestDatabaseService db)
+        {
+            _db = db;
+            BackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
+            OpenTestCommand = new Command<UserTestSummary>(async t => await OpenTestAsync(t));
+        }
+
+        private async Task OpenTestAsync(UserTestSummary? summary)
+        {
+            if (summary == null || CurrentUser == null) return;
+            // For now navigate by test id (session resume handled inside TestViewModel logic if implemented)
+            await Shell.Current.GoToAsync($"test?testId={summary.TestId}&userId={CurrentUser.UserId}&testType={summary.TestType}");
+        }
+
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            if (query.TryGetValue("userId", out var val) && val is string s)
+            {
+                UserId = s;
+                Initialize();
+            }
+        }
+
+        private void Initialize()
+        {
+            if (!int.TryParse(UserId, out var id)) return;
+
+            CurrentUser = _db.GetUserById(id);
+            if (CurrentUser == null) return;
+
+            var stats = _db.GetUserStats(id);
+            TotalTests = stats.TotalTests;
+            CompletedLessons = stats.CompletedLessons;
+            TotalRewards = stats.TotalRewards;
+            AverageScore = stats.AverageScore;
+
+            RecentTests.Clear();
+            var recent = _db.GetUserRecentTests(id, 5);
+            foreach (var t in recent)
+                RecentTests.Add(t);
+        }
+    }
+}

@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="TestDatabaseApp.Views.UserDashboardPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Name="DashboardRoot"
+             Title="Dashboard">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Label Text="{Binding CurrentUser.FullName}" FontAttributes="Bold" FontSize="24"/>
+            <Label Text="{Binding CurrentUser.Email}" TextColor="Gray"/>
+
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+                <Border Grid.Row="0" Grid.Column="0" Padding="16" BackgroundColor="#E6F4EA">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout>
+                        <Label Text="{Binding TotalTests}" FontSize="28"/>
+                        <Label Text="Total Tests" FontSize="12" TextColor="Gray"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="1" Padding="16" BackgroundColor="#FDE7E9">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout>
+                        <Label Text="{Binding CompletedLessons}" FontSize="28"/>
+                        <Label Text="Completed Lessons" FontSize="12" TextColor="Gray"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="0" Padding="16" BackgroundColor="#FFF7DA">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout>
+                        <Label Text="{Binding TotalRewards}" FontSize="28"/>
+                        <Label Text="Total Rewards" FontSize="12" TextColor="Gray"/>
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="1" Padding="16" BackgroundColor="#EDE7F6">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout>
+                        <Label Text="{Binding AverageScore, StringFormat='{0:F1}%'}" FontSize="28"/>
+                        <Label Text="Average Score" FontSize="12" TextColor="Gray"/>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <Label Text="Recent Tests" FontAttributes="Bold" Margin="0,12,0,0"/>
+            <CollectionView ItemsSource="{Binding RecentTests}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="12" Margin="0,6" BackgroundColor="#F5F5F5">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={x:Reference DashboardRoot}, Path=BindingContext.OpenTestCommand}" CommandParameter="{Binding .}" NumberOfTapsRequired="1" />
+                            </Border.GestureRecognizers>
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding TestType}" FontAttributes="Bold" />
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding DateFormatted}" TextColor="Gray" />
+                                <Label Grid.Row="1" Grid.Column="0" Text="Score" TextColor="Gray" />
+                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding ScoreFormatted}"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Button Text="Back" Command="{Binding BackCommand}"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
