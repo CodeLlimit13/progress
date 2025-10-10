@@ -1,0 +1,35 @@
+﻿using TestDatabaseApp.ViewModels;
+
+namespace TestDatabaseApp.Views
+{
+    public partial class TestPage : ContentPage
+    {
+        public TestPage(TestViewModel vm)
+        {
+            InitializeComponent();
+            BindingContext = vm;
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            if (BindingContext is TestViewModel vm)
+            {
+                vm.Initialize();
+            }
+        }
+
+        private void OnOptionChecked(object sender, CheckedChangedEventArgs e)
+        {
+            if (!e.Value) return;
+            if (BindingContext is TestViewModel tvm && tvm.CurrentQuestion is QuestionAttempt qa)
+            {
+                if (sender is RadioButton rb)
+                {
+                    qa.SelectedOption = rb.Value?.ToString();
+                }
+                tvm.OnOptionSelected();
+            }
+        }
+    }
+}

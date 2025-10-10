@@ -1,0 +1,287 @@
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
+using TestDatabaseApp.Models;
+using TestDatabaseApp.Services;
+using System.Diagnostics;
+using System.Linq;
+
+namespace TestDatabaseApp.ViewModels
+{
+    [QueryProperty(nameof(UserId), "userId")]
+    [QueryProperty(nameof(TestType), "testType")]
+    [QueryProperty(nameof(TestId), "testId")]
+    [QueryProperty(nameof(SessionId), "sessionId")]
+    public class TestViewModel : BaseViewModel, IQueryAttributable
+    {
+        private readonly TestDatabaseService _db;
+        private Stopwatch _timer;
+        private System.Timers.Timer _autosaveTimer;
+
+        // Query parameters
+        public string UserId { get; set; }
+        public string TestType { get; set; }
+        public string TestId { get; set; }
+        public string SessionId { get; set; }
+
+        private int _internalTestId; // actual test id in DB
+        private int _internalSessionId; // active session id
+        private int _elapsedBaseSeconds; // seconds already elapsed when resuming
+
+        public ObservableCollection<QuestionAttempt> Questions { get; } = new();
+
+        // Expose current question and position helpers
+        public QuestionAttempt? CurrentQuestion => (CurrentIndex >= 0 && CurrentIndex < Questions.Count) ? Questions[CurrentIndex] : null;
+        public string PositionText => Questions.Count == 0 ? string.Empty : $"Question {CurrentIndex + 1} of {Questions.Count}";
+        public bool HasPrev => CurrentIndex > 0;
+        public bool HasNext => CurrentIndex < Questions.Count - 1;
+
+        private bool _isSubmitted; public bool IsSubmitted { get => _isSubmitted; set { if (SetProperty(ref _isSubmitted, value)) { OnPropertyChanged(nameof(StartButtonText)); UpdateSubmitCanExecute(); } } }
+        private bool _hasStarted; public bool HasStarted { get => _hasStarted; set { if (SetProperty(ref _hasStarted, value)) OnPropertyChanged(nameof(StartButtonText)); } }
+        private string _resultSummary = string.Empty; public string ResultSummary { get => _resultSummary; set => SetProperty(ref _resultSummary, value); }
+        private string _testTypeTitle = string.Empty; public string TestTypeTitle { get => _testTypeTitle; set => SetProperty(ref _testTypeTitle, value); }
+        private string _testDescription = string.Empty; public string TestDescription { get => _testDescription; set => SetProperty(ref _testDescription, value); }
+        private int _totalQuestionsPlanned; public int TotalQuestionsPlanned { get => _totalQuestionsPlanned; set => SetProperty(ref _totalQuestionsPlanned, value); }
+        private string _timeLimit = string.Empty; public string TimeLimit { get => _timeLimit; set => SetProperty(ref _timeLimit, value); }
+        private string _difficulty = string.Empty; public string Difficulty { get => _difficulty; set => SetProperty(ref _difficulty, value); }
+        private int _currentIndex; public int CurrentIndex { get => _currentIndex; set { if (SetProperty(ref _currentIndex, value)) { SaveProgressThrottled(); OnPropertyChanged(nameof(CurrentQuestion)); OnPropertyChanged(nameof(PositionText)); OnPropertyChanged(nameof(HasPrev)); OnPropertyChanged(nameof(HasNext)); UpdateSubmitCanExecute(); } } }
+
+        public string StartButtonText => IsSubmitted ? "Retake" : (HasStarted ? "Continue" : "Start");
+
+        public ICommand SubmitCommand { get; }
+        public ICommand BackCommand { get; }
+        public ICommand StartOrContinueCommand { get; }
+        public ICommand SelectOptionCommand { get; }
+        public ICommand NextQuestionCommand { get; }
+        public ICommand PrevQuestionCommand { get; }
+
+        public TestViewModel(TestDatabaseService db)
+        {
+            _db = db;
+            SubmitCommand = new Command(OnSubmit, CanSubmit);
+            BackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
+            StartOrContinueCommand = new Command(StartOrContinue);
+            SelectOptionCommand = new Command<QuestionAttempt>(q => { if (q != null) { OnOptionSelected(); SaveProgressThrottled(); } });
+            NextQuestionCommand = new Command(() => { if (CurrentIndex < Questions.Count - 1) CurrentIndex++; }, () => CurrentIndex < Questions.Count - 1);
+            PrevQuestionCommand = new Command(() => { if (CurrentIndex > 0) CurrentIndex--; }, () => CurrentIndex > 0);
+        }
+
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            // Called automatically after navigation with query parameters
+            Initialize();
+        }
+
+        public void Initialize()
+        {
+            PrepareMetadata();
+            if (!int.TryParse(UserId, out var userId)) return;
+
+            // Priority: sessionId -> resume that. Else if testId -> attempt active session for that test -> else new
+            if (int.TryParse(SessionId, out var sessId) && sessId > 0)
+            {
+                var session = _db.GetSessionById(sessId);
+                if (session != null)
+                {
+                    LoadSession(session);
+                    return;
+                }
+            }
+
+            if (int.TryParse(TestId, out var testId) && testId > 0)
+            {
+                var active = _db.GetActiveSessionForTest(userId, testId);
+                if (active != null)
+                {
+                    LoadSession(active);
+                    return;
+                }
+                // Completed test - no session. Mark submitted.
+                IsSubmitted = true;
+                ResultSummary = "Previously completed test (session not found).";
+                _internalTestId = testId;
+                return;
+            }
+        }
+
+        private void LoadSession(TestSessionDto session)
+        {
+            _internalTestId = session.TestId;
+            _internalSessionId = session.SessionId;
+            Questions.Clear();
+            foreach (var q in session.Questions)
+            {
+                var existingAnswer = session.Answers.FirstOrDefault(a => a.QuestionId == q.QuestionId);
+                Questions.Add(new QuestionAttempt
+                {
+                    QuestionId = q.QuestionId,
+                    QuestionText = q.QuestionText,
+                    OptionA = q.OptionA,
+                    OptionB = q.OptionB,
+                    OptionC = q.OptionC,
+                    OptionD = q.OptionD,
+                    CorrectOption = q.CorrectOption,
+                    SelectedOption = existingAnswer?.Selected ?? string.Empty
+                });
+            }
+            _elapsedBaseSeconds = session.ElapsedSeconds;
+            CurrentIndex = session.CurrentQuestionIndex;
+            HasStarted = true;
+            IsSubmitted = session.IsCompleted;
+            OnPropertyChanged(nameof(CurrentQuestion));
+            OnPropertyChanged(nameof(PositionText));
+            OnPropertyChanged(nameof(HasPrev));
+            OnPropertyChanged(nameof(HasNext));
+            UpdateSubmitCanExecute();
+            if (!IsSubmitted)
+            {
+                StartTimer();
+                StartAutosave();
+            }
+            else
+            {
+                ResultSummary = "Completed test (review mode)";
+            }
+        }
+
+        private void PrepareMetadata()
+        {
+            switch (TestType?.ToLower())
+            {
+                case "practice":
+                    TestTypeTitle = "Practice Test";
+                    TestDescription = "Sharpen skills with practice questions.";
+                    TotalQuestionsPlanned = 10;
+                    TimeLimit = "15 min";
+                    Difficulty = "Easy";
+                    break;
+                case "exam":
+                    TestTypeTitle = "Exam";
+                    TestDescription = "Comprehensive assessment.";
+                    TotalQuestionsPlanned = 10;
+                    TimeLimit = "25 min";
+                    Difficulty = "Hard";
+                    break;
+                case "quiz":
+                    TestTypeTitle = "Quick Quiz";
+                    TestDescription = "Fast knowledge check.";
+                    TotalQuestionsPlanned = 10;
+                    TimeLimit = "15 min";
+                    Difficulty = "Medium";
+                    break;
+                default:
+                    TestTypeTitle = "Test";
+                    TestDescription = "Assessment";
+                    TotalQuestionsPlanned = 10;
+                    TimeLimit = "20 min";
+                    Difficulty = "Medium";
+                    break;
+            }
+        }
+
+        private void StartOrContinue()
+        {
+            if (IsSubmitted)
+            {
+                // Retake -> start a brand new test+session
+                ResetState();
+                StartNewSession();
+                return;
+            }
+            if (!HasStarted)
+            {
+                StartNewSession();
+                return;
+            }
+        }
+
+        private void ResetState()
+        {
+            Questions.Clear();
+            ResultSummary = string.Empty; IsSubmitted = false; HasStarted = false; _internalTestId = 0; _internalSessionId = 0; _timer = null; _elapsedBaseSeconds = 0;
+            _autosaveTimer?.Stop(); _autosaveTimer?.Dispose(); _autosaveTimer = null;
+            OnPropertyChanged(nameof(CurrentQuestion));
+            OnPropertyChanged(nameof(PositionText));
+            OnPropertyChanged(nameof(HasPrev));
+            OnPropertyChanged(nameof(HasNext));
+            UpdateSubmitCanExecute();
+        }
+
+        private void StartNewSession()
+        {
+            if (!int.TryParse(UserId, out var userId)) return;
+            const int subjectId = 1;
+            string category = (TestType?.ToLower()) switch
+            {
+                "practice" => "Practice",
+                "exam" => "Exam",
+                "quiz" => "Quiz",
+                _ => "Practice"
+            };
+            var created = _db.CreateTestAndSession(userId, subjectId, TestType ?? "Practice", "user", category, TotalQuestionsPlanned);
+            _internalTestId = created.testId; _internalSessionId = created.sessionId; Questions.Clear();
+            foreach (var q in created.questions)
+            {
+                Questions.Add(new QuestionAttempt { QuestionId = q.QuestionId, QuestionText = q.QuestionText, OptionA = q.OptionA, OptionB = q.OptionB, OptionC = q.OptionC, OptionD = q.OptionD, CorrectOption = q.CorrectOption });
+            }
+            HasStarted = true; CurrentIndex = 0; _elapsedBaseSeconds = 0; StartTimer(); StartAutosave(); UpdateSubmitCanExecute();
+            OnPropertyChanged(nameof(CurrentQuestion));
+            OnPropertyChanged(nameof(PositionText));
+            OnPropertyChanged(nameof(HasPrev));
+            OnPropertyChanged(nameof(HasNext));
+        }
+
+        private void StartTimer() { _timer = Stopwatch.StartNew(); }
+        private int CurrentElapsedSeconds => _elapsedBaseSeconds + (int)(_timer?.Elapsed.TotalSeconds ?? 0);
+
+        private void StartAutosave()
+        {
+            _autosaveTimer = new System.Timers.Timer(5000); // every 5s
+            _autosaveTimer.Elapsed += (_, __) => SaveProgress();
+            _autosaveTimer.AutoReset = true; _autosaveTimer.Start();
+        }
+
+        private void SaveProgressThrottled() => SaveProgress(); // simple for now
+
+        private void SaveProgress()
+        {
+            if (_internalSessionId <= 0 || IsSubmitted || !HasStarted) return;
+            var answers = Questions.Where(q => !string.IsNullOrEmpty(q.SelectedOption)).Select(q => new AnswerDto(q.QuestionId, q.SelectedOption));
+            _db.SaveSessionProgress(_internalSessionId, CurrentIndex, CurrentElapsedSeconds, answers);
+        }
+
+        private void OnSubmit()
+        {
+            if (IsSubmitted || !HasStarted) return; if (!int.TryParse(UserId, out var _)) return;
+            _timer?.Stop(); SaveProgress();
+            int correct = Questions.Count(q => q.SelectedOption == q.CorrectOption); int total = Questions.Count; int timeSec = CurrentElapsedSeconds;
+            _db.CompleteSession(_internalSessionId, correct, total, timeSec);
+            var percent = total == 0 ? 0 : (double)correct / total * 100.0; ResultSummary = $"You scored {correct}/{total} ({percent:F1}%)."; IsSubmitted = true; _autosaveTimer?.Stop();
+        }
+
+        private bool CanSubmit() => !IsSubmitted && HasStarted && Questions.Count > 0 && Questions.All(q => !string.IsNullOrEmpty(q.SelectedOption));
+        private void UpdateSubmitCanExecute()
+        {
+            (SubmitCommand as Command)?.ChangeCanExecute();
+            (NextQuestionCommand as Command)?.ChangeCanExecute();
+            (PrevQuestionCommand as Command)?.ChangeCanExecute();
+        }
+        public void OnOptionSelected() => UpdateSubmitCanExecute();
+    }
+
+    public class QuestionAttempt : BaseViewModel
+    {
+        public int QuestionId { get; set; }
+        public string QuestionText { get; set; } = string.Empty;
+        public string OptionA { get; set; } = string.Empty;
+        public string OptionB { get; set; } = string.Empty;
+        public string OptionC { get; set; } = string.Empty;
+        public string OptionD { get; set; } = string.Empty;
+        public string CorrectOption { get; set; } = string.Empty;
+        private string _selectedOption = string.Empty; public string SelectedOption { get => _selectedOption; set { if (SetProperty(ref _selectedOption, value)) { OnPropertyChanged(nameof(IsCorrect)); OnPropertyChanged(nameof(FeedbackText)); } } }
+        public bool IsCorrect => !string.IsNullOrEmpty(SelectedOption) && SelectedOption == CorrectOption;
+        private string GetOptionText(string letter) => letter switch { "A" => OptionA, "B" => OptionB, "C" => OptionC, "D" => OptionD, _ => string.Empty };
+        public string CorrectOptionText => GetOptionText(CorrectOption);
+        public string SelectedOptionText => GetOptionText(SelectedOption);
+        public string FeedbackText => string.IsNullOrEmpty(SelectedOption) ? string.Empty : IsCorrect ? "Correct" : $"Incorrect. Correct Answer: {CorrectOption} - {CorrectOptionText}";
+    }
+}

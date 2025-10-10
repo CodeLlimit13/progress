@@ -1,0 +1,272 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using Microsoft.Data.Sqlite;
+using Microsoft.Maui.Storage;
+using TestDatabaseApp.Models;
+
+namespace TestDatabaseApp.Services
+{
+    public class TestDatabaseService
+    {
+        private readonly string _connectionString;
+        private static readonly string[] AllowedTestTypes = new[] { "Quiz", "Practice", "Exam" };
+
+        public TestDatabaseService()
+        {
+            _connectionString = $"Data Source={GetDatabasePath()}";
+            // Delete local DB once (creates a marker so it won't repeat). Remove or comment this call after the reset has occurred.
+            DeleteDatabaseOnce();
+            InitializeDatabase();
+        }
+
+        private string GetDatabasePath() => Path.Combine(FileSystem.AppDataDirectory, "TestDatabase.db");
+
+        private void InitializeDatabase()
+        {
+            var dbDir = Path.GetDirectoryName(GetDatabasePath());
+            if (!string.IsNullOrEmpty(dbDir) && !Directory.Exists(dbDir)) Directory.CreateDirectory(dbDir);
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+            EnableForeignKeys(connection);
+            CreateTables(connection);
+            NormalizeExistingQuestionCategories(connection);
+            EnsureSampleData(connection);
+            SeedQuestionsIfEmpty(connection);
+            // Stick to original seeded questions only (no extra seeding)
+        }
+
+        private static void EnableForeignKeys(SqliteConnection connection)
+        { using var pragma = new SqliteCommand("PRAGMA foreign_keys=ON;", connection); pragma.ExecuteNonQuery(); }
+
+        private void CreateTables(SqliteConnection connection)
+        {
+            var createUsersTable = @"CREATE TABLE IF NOT EXISTS Users (UserId INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, Surname TEXT, Email TEXT, Password TEXT, PhoneNumber INTEGER, Preferences TEXT);";
+            var createTestsTable = @"CREATE TABLE IF NOT EXISTS Tests (TestId INTEGER PRIMARY KEY AUTOINCREMENT, UserId INTEGER NOT NULL, SubjectId INTEGER, TopicId INTEGER, TestType TEXT, GeneratedBy TEXT, FOREIGN KEY(UserId) REFERENCES Users(UserId) ON DELETE CASCADE);";
+            var createTestResultsTable = @"CREATE TABLE IF NOT EXISTS TestResults (ResultId INTEGER PRIMARY KEY AUTOINCREMENT, TestId INTEGER NOT NULL, UserId INTEGER NOT NULL, CorrectAnswers INTEGER, TotalQuestions INTEGER, ScorePercentage REAL, TimeTaken INTEGER, CompletedAt TEXT, FOREIGN KEY(TestId) REFERENCES Tests(TestId) ON DELETE CASCADE, FOREIGN KEY(UserId) REFERENCES Users(UserId) ON DELETE CASCADE);";
+            var createProgressTrackingTable = @"CREATE TABLE IF NOT EXISTS ProgressTracking (ProgressId INTEGER PRIMARY KEY AUTOINCREMENT, UserId INTEGER NOT NULL, LessonId INTEGER NOT NULL, Status TEXT, Score INTEGER, TimeSpent INTEGER, LastAccessed TEXT, CompletionDate TEXT, FOREIGN KEY(UserId) REFERENCES Users(UserId) ON DELETE CASCADE);";
+            var createRewardsTable = @"CREATE TABLE IF NOT EXISTS Rewards (RewardId INTEGER PRIMARY KEY AUTOINCREMENT, UserId INTEGER NOT NULL, BadgeName TEXT, Description TEXT, PointsAwarded INTEGER, EarnedDate TEXT, FOREIGN KEY(UserId) REFERENCES Users(UserId) ON DELETE CASCADE);";
+            var createQuestionsTable = @"CREATE TABLE IF NOT EXISTS Questions (QuestionId INTEGER PRIMARY KEY AUTOINCREMENT, SubjectId INTEGER, TopicId INTEGER, LessonId INTEGER, QuestionText TEXT NOT NULL, OptionA TEXT NOT NULL, OptionB TEXT NOT NULL, OptionC TEXT NOT NULL, OptionD TEXT NOT NULL, CorrectOption TEXT NOT NULL, Category TEXT);";
+            var createTestSessionsTable = @"CREATE TABLE IF NOT EXISTS TestSessions (SessionId INTEGER PRIMARY KEY AUTOINCREMENT, TestId INTEGER NOT NULL, UserId INTEGER NOT NULL, StartedAt TEXT NOT NULL, LastUpdatedAt TEXT NOT NULL, ElapsedSeconds INTEGER NOT NULL, CurrentQuestionIndex INTEGER NOT NULL, IsCompleted INTEGER NOT NULL, QuestionsJson TEXT NOT NULL, AnswersJson TEXT NOT NULL, FOREIGN KEY(TestId) REFERENCES Tests(TestId) ON DELETE CASCADE, FOREIGN KEY(UserId) REFERENCES Users(UserId) ON DELETE CASCADE);";
+            var indexSessionsUser = @"CREATE INDEX IF NOT EXISTS IX_TestSessions_UserIncomplete ON TestSessions(UserId, IsCompleted);";
+            foreach (var sql in new[] { createUsersTable, createTestsTable, createTestResultsTable, createProgressTrackingTable, createRewardsTable, createQuestionsTable, createTestSessionsTable, indexSessionsUser })
+            { using var cmd = new SqliteCommand(sql, connection); cmd.ExecuteNonQuery(); }
+        }
+
+        private static bool IsTableEmpty(SqliteConnection connection, string tableName)
+        { using var check = new SqliteCommand($"SELECT COUNT(*) FROM {tableName}", connection); return Convert.ToInt32(check.ExecuteScalar() ?? 0) == 0; }
+
+        private void EnsureSampleData(SqliteConnection connection)
+        {
+            if (IsTableEmpty(connection, "Users")) { InsertSampleData(connection); return; }
+            var users = new List<int>();
+            using (var cmd = new SqliteCommand("SELECT UserId FROM Users", connection))
+            using (var r = cmd.ExecuteReader()) { int i = r.GetOrdinal("UserId"); while (r.Read()) users.Add(r.GetInt32(i)); }
+            foreach (var userId in users)
+            {
+                // Ensure exactly one row per allowed test type per user
+                foreach (var tt in AllowedTestTypes)
+                {
+                    using var chk = new SqliteCommand("SELECT 1 FROM Tests WHERE UserId=@u AND TestType=@tt LIMIT 1", connection);
+                    chk.Parameters.AddWithValue("@u", userId);
+                    chk.Parameters.AddWithValue("@tt", tt);
+                    if (chk.ExecuteScalar() == null)
+                        Exec(connection, "INSERT INTO Tests (UserId, SubjectId, TopicId, TestType, GeneratedBy) VALUES (@u,1,NULL,@tt,'system')", ("@u", userId), ("@tt", tt));
+                }
+
+                // Minimal seeding of results only if none exist
+                using (var resCount = new SqliteCommand("SELECT COUNT(*) FROM TestResults WHERE UserId=@u", connection))
+                {
+                    resCount.Parameters.AddWithValue("@u", userId);
+                    if (Convert.ToInt32(resCount.ExecuteScalar() ?? 0) == 0)
+                    {
+                        using var getTests = new SqliteCommand("SELECT TestId, TestType FROM Tests WHERE UserId=@u", connection);
+                        getTests.Parameters.AddWithValue("@u", userId);
+                        using var tr = getTests.ExecuteReader();
+                        var now = DateTime.UtcNow;
+                        int offset = 0;
+                        while (tr.Read())
+                        {
+                            var testId = tr.GetInt32(0);
+                            var tt = tr.GetString(1);
+                            InsertResult(connection, testId, userId, tt switch { "Quiz" => 72.5m, "Exam" => 88.0m, _ => 95.0m }, 10, 12, now.AddDays(-(++offset)));
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void InsertResult(SqliteConnection c, int testId, int userId, decimal score, int correct, int total, DateTime completedAt)
+        { using var rc = new SqliteCommand(@"INSERT INTO TestResults (TestId, UserId, CorrectAnswers, TotalQuestions, ScorePercentage, TimeTaken, CompletedAt) VALUES (@t,@u,@c,@tot,@s,30,@dt)", c); rc.Parameters.AddWithValue("@t", testId); rc.Parameters.AddWithValue("@u", userId); rc.Parameters.AddWithValue("@c", correct); rc.Parameters.AddWithValue("@tot", total); rc.Parameters.AddWithValue("@s", score); rc.Parameters.AddWithValue("@dt", completedAt.ToString("o")); rc.ExecuteNonQuery(); }
+        private static void InsertProgress(SqliteConnection c, int userId, int lessonId, string status, int timeSpent, DateTime when)
+        { using var pc = new SqliteCommand(@"INSERT INTO ProgressTracking (UserId, LessonId, Status, Score, TimeSpent, LastAccessed, CompletionDate) VALUES (@u,@l,@st,NULL,@time,@la,@cd)", c); pc.Parameters.AddWithValue("@u", userId); pc.Parameters.AddWithValue("@l", lessonId); pc.Parameters.AddWithValue("@st", status); pc.Parameters.AddWithValue("@time", timeSpent); pc.Parameters.AddWithValue("@la", when.ToString("o")); pc.Parameters.AddWithValue("@cd", status == "Completed" ? when.ToString("o") : (object)DBNull.Value); pc.ExecuteNonQuery(); }
+        private static void InsertReward(SqliteConnection c, int userId, string badge, string desc, int pts, DateTime when)
+        { using var rc = new SqliteCommand(@"INSERT INTO Rewards (UserId, BadgeName, Description, PointsAwarded, EarnedDate) VALUES (@u,@b,@d,@p,@dt)", c); rc.Parameters.AddWithValue("@u", userId); rc.Parameters.AddWithValue("@b", badge); rc.Parameters.AddWithValue("@d", desc); rc.Parameters.AddWithValue("@p", pts); rc.Parameters.AddWithValue("@dt", when.ToString("o")); rc.ExecuteNonQuery(); }
+        private static int ScalarCount(SqliteConnection c, string sql, int userId) { using var cmd = new SqliteCommand(sql, c); cmd.Parameters.AddWithValue("@u", userId); var v = cmd.ExecuteScalar(); return v == null || v == DBNull.Value ? 0 : Convert.ToInt32(v); }
+        private static void Exec(SqliteConnection c, string sql, params (string, object)[] p) { using var cmd = new SqliteCommand(sql, c); foreach (var (n, v) in p) cmd.Parameters.AddWithValue(n, v); cmd.ExecuteNonQuery(); }
+        private void InsertSampleData(SqliteConnection connection)
+        { var insertUsers = @"INSERT INTO Users (Name, Surname, Email, Password, PhoneNumber, Preferences) VALUES ('Alice','Johnson','alice@example.com','password123',1234567890,'{""learning_style"":""visual"",""notifications"":""email""}'),('Bob','Smith','bob@example.com','securepass',987654321,'{""learning_style"":""auditory"",""notifications"":""sms""}'),('Carol','Brown','carol@example.com','mypassword',1112223333,'{""learning_style"":""kinesthetic"",""notifications"":""push""}')"; using (var cmd = new SqliteCommand(insertUsers, connection)) cmd.ExecuteNonQuery(); EnsureSampleData(connection); }
+
+        private void SeedQuestionsIfEmpty(SqliteConnection connection)
+        {
+            using var chk = new SqliteCommand("SELECT COUNT(*) FROM Questions", connection);
+            if (Convert.ToInt32(chk.ExecuteScalar() ?? 0) > 0) return;
+            var insert = @"INSERT INTO Questions (SubjectId,TopicId,LessonId,QuestionText,OptionA,OptionB,OptionC,OptionD,CorrectOption,Category) VALUES (@subj,@topic,@lesson,@q,@a,@b,@c,@d,@correct,@cat)";
+            void Add(int? subj, string q, string a, string b, string c, string d, string correct, string cat)
+            { using var cmd = new SqliteCommand(insert, connection); cmd.Parameters.AddWithValue("@subj", (object?)subj ?? DBNull.Value); cmd.Parameters.AddWithValue("@topic", DBNull.Value); cmd.Parameters.AddWithValue("@lesson", DBNull.Value); cmd.Parameters.AddWithValue("@q", q); cmd.Parameters.AddWithValue("@a", a); cmd.Parameters.AddWithValue("@b", b); cmd.Parameters.AddWithValue("@c", c); cmd.Parameters.AddWithValue("@d", d); cmd.Parameters.AddWithValue("@correct", correct); cmd.Parameters.AddWithValue("@cat", cat); cmd.ExecuteNonQuery(); }
+            Add(1, "What is 2 + 2?", "3", "4", "5", "6", "B", "Practice");
+            Add(1, "What is 5 * 3?", "15", "20", "25", "10", "A", "Practice");
+            Add(1, "Simplify: 10 / 2", "2", "4", "5", "8", "C", "Practice");
+            Add(2, "Capital of France?", "Berlin", "London", "Paris", "Rome", "C", "Quiz");
+            Add(2, "Which ocean is the largest?", "Atlantic", "Indian", "Arctic", "Pacific", "D", "Quiz");
+            Add(3, "Largest planet?", "Mars", "Jupiter", "Earth", "Saturn", "B", "Exam");
+            Add(3, "Primary gas in Earth's atmosphere?", "Oxygen", "Nitrogen", "Carbon Dioxide", "Helium", "B", "Exam");
+            Add(3, "H2O is the chemical formula for?", "Salt", "Hydrogen Peroxide", "Water", "Oxygen", "C", "Exam");
+        }
+
+        // Normalize existing question categories to supported set to avoid case/synonym mismatches
+        private void NormalizeExistingQuestionCategories(SqliteConnection connection)
+        {
+            // Map synonyms or different casing to normalized values
+            void Upd(string match, string normalized)
+            {
+                using var cmd = new SqliteCommand("UPDATE Questions SET Category=@norm WHERE Category IS NOT NULL AND UPPER(Category)=@m", connection);
+                cmd.Parameters.AddWithValue("@norm", normalized);
+                cmd.Parameters.AddWithValue("@m", match.ToUpperInvariant());
+                cmd.ExecuteNonQuery();
+            }
+            Upd("practice", "Practice");
+            Upd("quiz", "Quiz");
+            Upd("test", "Quiz"); // treat legacy 'Test' as 'Quiz'
+            Upd("exam", "Exam");
+        }
+
+        // Users CRUD and stats
+        public List<User> GetAllUsers()
+        { var list = new List<User>(); using var connection = new SqliteConnection(_connectionString); connection.Open(); EnableForeignKeys(connection); const string sql = "SELECT UserId, Name, Surname, Email, Password, PhoneNumber, Preferences FROM Users ORDER BY Name"; using var cmd = new SqliteCommand(sql, connection); using var r = cmd.ExecuteReader(); int iId = r.GetOrdinal("UserId"), iName = r.GetOrdinal("Name"), iSurname = r.GetOrdinal("Surname"), iEmail = r.GetOrdinal("Email"), iPwd = r.GetOrdinal("Password"), iPhone = r.GetOrdinal("PhoneNumber"), iPrefs = r.GetOrdinal("Preferences"); while (r.Read()) list.Add(new User { UserId = r.IsDBNull(iId) ? 0 : r.GetInt32(iId), Name = r.IsDBNull(iName) ? string.Empty : r.GetString(iName), Surname = r.IsDBNull(iSurname) ? string.Empty : r.GetString(iSurname), Email = r.IsDBNull(iEmail) ? null : r.GetString(iEmail), Password = r.IsDBNull(iPwd) ? null : r.GetString(iPwd), PhoneNumber = r.IsDBNull(iPhone) ? 0 : r.GetInt64(iPhone), Preferences = r.IsDBNull(iPrefs) ? null : r.GetString(iPrefs) }); return list; }
+        public User? GetUserById(int userId)
+        { using var connection = new SqliteConnection(_connectionString); connection.Open(); EnableForeignKeys(connection); const string sql = "SELECT UserId, Name, Surname, Email, Password, PhoneNumber, Preferences FROM Users WHERE UserId=@id"; using var cmd = new SqliteCommand(sql, connection); cmd.Parameters.AddWithValue("@id", userId); using var r = cmd.ExecuteReader(); if (!r.Read()) return null; int iId = r.GetOrdinal("UserId"), iName = r.GetOrdinal("Name"), iSurname = r.GetOrdinal("Surname"), iEmail = r.GetOrdinal("Email"), iPwd = r.GetOrdinal("Password"), iPhone = r.GetOrdinal("PhoneNumber"), iPrefs = r.GetOrdinal("Preferences"); return new User { UserId = r.IsDBNull(iId) ? 0 : r.GetInt32(iId), Name = r.IsDBNull(iName) ? string.Empty : r.GetString(iName), Surname = r.IsDBNull(iSurname) ? string.Empty : r.GetString(iSurname), Email = r.IsDBNull(iEmail) ? null : r.GetString(iEmail), Password = r.IsDBNull(iPwd) ? null : r.GetString(iPwd), PhoneNumber = r.IsDBNull(iPhone) ? 0 : r.GetInt64(iPhone), Preferences = r.IsDBNull(iPrefs) ? null : r.GetString(iPrefs) }; }
+        public bool AddUser(User user)
+        { using var connection = new SqliteConnection(_connectionString); connection.Open(); EnableForeignKeys(connection); const string sql = @"INSERT INTO Users (Name,Surname,Email,Password,PhoneNumber,Preferences) VALUES (@n,@s,@e,@p,@ph,@pr)"; using var cmd = new SqliteCommand(sql, connection); cmd.Parameters.AddWithValue("@n", user.Name ?? string.Empty); cmd.Parameters.AddWithValue("@s", (object?)user.Surname ?? DBNull.Value); cmd.Parameters.AddWithValue("@e", (object?)user.Email ?? DBNull.Value); cmd.Parameters.AddWithValue("@p", (object?)user.Password ?? DBNull.Value); cmd.Parameters.AddWithValue("@ph", user.PhoneNumber); cmd.Parameters.AddWithValue("@pr", (object?)user.Preferences ?? DBNull.Value); return cmd.ExecuteNonQuery() > 0; }
+        public bool UpdateUser(User user)
+        { using var connection = new SqliteConnection(_connectionString); connection.Open(); EnableForeignKeys(connection); const string sql = @"UPDATE Users SET Name=@n,Surname=@s,Email=@e,Password=@p,PhoneNumber=@ph,Preferences=@pr WHERE UserId=@id"; using var cmd = new SqliteCommand(sql, connection); cmd.Parameters.AddWithValue("@id", user.UserId); cmd.Parameters.AddWithValue("@n", user.Name ?? string.Empty); cmd.Parameters.AddWithValue("@s", (object?)user.Surname ?? DBNull.Value); cmd.Parameters.AddWithValue("@e", (object?)user.Email ?? DBNull.Value); cmd.Parameters.AddWithValue("@p", (object?)user.Password ?? DBNull.Value); cmd.Parameters.AddWithValue("@ph", user.PhoneNumber); cmd.Parameters.AddWithValue("@pr", (object?)user.Preferences ?? DBNull.Value); return cmd.ExecuteNonQuery() > 0; }
+        public bool DeleteUser(int userId)
+        { using var connection = new SqliteConnection(_connectionString); connection.Open(); EnableForeignKeys(connection); using var cmd = new SqliteCommand("DELETE FROM Users WHERE UserId=@id", connection); cmd.Parameters.AddWithValue("@id", userId); return cmd.ExecuteNonQuery() > 0; }
+        public UserStats GetUserStats(int userId)
+        { using var connection = new SqliteConnection(_connectionString); connection.Open(); EnableForeignKeys(connection); int C(string sql) { using var c = new SqliteCommand(sql, connection); c.Parameters.AddWithValue("@uid", userId); var v = c.ExecuteScalar(); return v == null || v == DBNull.Value ? 0 : Convert.ToInt32(v); } double A(string sql) { using var c = new SqliteCommand(sql, connection); c.Parameters.AddWithValue("@uid", userId); var v = c.ExecuteScalar(); return v == null || v == DBNull.Value ? 0.0 : Convert.ToDouble(v); } return new UserStats { TotalTests = C("SELECT COUNT(*) FROM Tests WHERE UserId=@uid"), CompletedLessons = C("SELECT COUNT(*) FROM ProgressTracking WHERE UserId=@uid AND Status='Completed'"), TotalRewards = C("SELECT COUNT(*) FROM Rewards WHERE UserId=@uid"), AverageScore = Math.Round(A("SELECT AVG(ScorePercentage) FROM TestResults WHERE UserId=@uid"), 1) }; }
+        public List<UserTestSummary> GetUserRecentTests(int userId, int limit = 5)
+        { var results = new List<UserTestSummary>(); using var connection = new SqliteConnection(_connectionString); connection.Open(); EnableForeignKeys(connection); foreach (var tt in AllowedTestTypes) { const string sql = @"SELECT t.TestId, t.TestType, tr.ScorePercentage, tr.CompletedAt FROM Tests t LEFT JOIN TestResults tr ON tr.TestId = t.TestId AND tr.CompletedAt = (SELECT MAX(tr2.CompletedAt) FROM TestResults tr2 WHERE tr2.TestId = t.TestId AND tr2.UserId=@u) WHERE t.UserId=@u AND t.TestType=@tt LIMIT 1"; using var cmd = new SqliteCommand(sql, connection); cmd.Parameters.AddWithValue("@u", userId); cmd.Parameters.AddWithValue("@tt", tt); using var r = cmd.ExecuteReader(); if (r.Read()) { double score = r.IsDBNull(r.GetOrdinal("ScorePercentage")) ? 0.0 : Convert.ToDouble(r.GetDecimal(r.GetOrdinal("ScorePercentage"))); DateTime completed = DateTime.UtcNow; if (!r.IsDBNull(r.GetOrdinal("CompletedAt"))) { var iso = r.GetString(r.GetOrdinal("CompletedAt")); DateTime.TryParse(iso, out completed); } results.Add(new UserTestSummary { TestId = r.GetInt32(r.GetOrdinal("TestId")), TestType = tt, Score = score, CompletedAt = completed }); } } return results.OrderBy(t => Array.IndexOf(AllowedTestTypes, t.TestType)).ToList(); }
+
+        public bool AddQuestion(Question question)
+        {
+            using var connection = new SqliteConnection(_connectionString); connection.Open(); EnableForeignKeys(connection);
+            const string sql = @"INSERT INTO Questions (SubjectId,TopicId,LessonId,QuestionText,OptionA,OptionB,OptionC,OptionD,CorrectOption,Category) VALUES (@subj,@topic,@lesson,@q,@a,@b,@c,@d,@correct,@cat)";
+            using var cmd = new SqliteCommand(sql, connection);
+            cmd.Parameters.AddWithValue("@subj", (object?)question.SubjectId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@topic", (object?)question.TopicId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@lesson", (object?)question.LessonId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@q", question.QuestionText ?? string.Empty);
+            cmd.Parameters.AddWithValue("@a", question.OptionA ?? string.Empty);
+            cmd.Parameters.AddWithValue("@b", question.OptionB ?? string.Empty);
+            cmd.Parameters.AddWithValue("@c", question.OptionC ?? string.Empty);
+            cmd.Parameters.AddWithValue("@d", question.OptionD ?? string.Empty);
+            cmd.Parameters.AddWithValue("@correct", question.CorrectOption ?? "A");
+            cmd.Parameters.AddWithValue("@cat", NormalizeTestType(question.Category ?? "Practice"));
+            return cmd.ExecuteNonQuery() > 0;
+        }
+
+        public int CreateTest(int userId, int subjectId, string testType, string generatedBy)
+        {
+            testType = NormalizeTestType(testType);
+            using var connection = new SqliteConnection(_connectionString); connection.Open(); EnableForeignKeys(connection);
+            const string find = "SELECT TestId FROM Tests WHERE UserId=@u AND TestType=@tt LIMIT 1";
+            using (var f = new SqliteCommand(find, connection)) { f.Parameters.AddWithValue("@u", userId); f.Parameters.AddWithValue("@tt", testType); var existing = f.ExecuteScalar(); if (existing != null && existing != DBNull.Value) return Convert.ToInt32(existing); }
+            const string ins = @"INSERT INTO Tests (UserId, SubjectId, TestType, GeneratedBy) VALUES (@u,@s,@tt,@gb); SELECT last_insert_rowid();";
+            using var cmd = new SqliteCommand(ins, connection); cmd.Parameters.AddWithValue("@u", userId); cmd.Parameters.AddWithValue("@s", subjectId); cmd.Parameters.AddWithValue("@tt", testType); cmd.Parameters.AddWithValue("@gb", generatedBy); return Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        public (int testId, int sessionId, List<Question> questions) CreateTestAndSession(int userId, int subjectId, string testType, string generatedBy, string category, int questionCount)
+        {
+            testType = NormalizeTestType(testType);
+            var testId = CreateTest(userId, subjectId, testType, generatedBy);
+            using var connection = new SqliteConnection(_connectionString); connection.Open(); EnableForeignKeys(connection);
+            category = NormalizeTestType(category);
+
+            // Fetch up to questionCount existing questions for the category (no extra seeding, no repeats)
+            var questionIds = GetQuestionIdsForCategory(connection, category, questionCount);
+            var questions = GetQuestionsByIds(questionIds, connection);
+
+            const string ins = @"INSERT INTO TestSessions (TestId,UserId,StartedAt,LastUpdatedAt,ElapsedSeconds,CurrentQuestionIndex,IsCompleted,QuestionsJson,AnswersJson) VALUES (@t,@u,@st,@st,0,0,0,@q,@a); SELECT last_insert_rowid();";
+            using var cmd = new SqliteCommand(ins, connection); var now = DateTime.UtcNow.ToString("o"); cmd.Parameters.AddWithValue("@t", testId); cmd.Parameters.AddWithValue("@u", userId); cmd.Parameters.AddWithValue("@st", now); cmd.Parameters.AddWithValue("@q", JsonSerializer.Serialize(questionIds)); cmd.Parameters.AddWithValue("@a", "[]"); var sessionId = Convert.ToInt32(cmd.ExecuteScalar()); return (testId, sessionId, questions);
+        }
+
+        private string NormalizeTestType(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return "Practice";
+            foreach (var allowed in AllowedTestTypes)
+                if (string.Equals(input, allowed, StringComparison.OrdinalIgnoreCase)) return allowed;
+            return "Practice"; // default fallback
+        }
+
+        // Session + questions logic
+        public TestSessionDto? GetSessionById(int sessionId)
+        { using var c = new SqliteConnection(_connectionString); c.Open(); EnableForeignKeys(c); const string sql = @"SELECT s.SessionId,s.TestId,s.UserId,s.ElapsedSeconds,s.CurrentQuestionIndex,s.IsCompleted,s.QuestionsJson,s.AnswersJson,t.TestType FROM TestSessions s JOIN Tests t ON t.TestId=s.TestId WHERE s.SessionId=@id"; using var cmd = new SqliteCommand(sql, c); cmd.Parameters.AddWithValue("@id", sessionId); using var r = cmd.ExecuteReader(); if (!r.Read()) return null; var dto = MapSession(r); dto.Questions = GetQuestionsByIds(dto.QuestionIds, c); return dto; }
+        public TestSessionDto? GetActiveSessionForTest(int userId, int testId)
+        { using var c = new SqliteConnection(_connectionString); c.Open(); EnableForeignKeys(c); const string sql = @"SELECT s.SessionId,s.TestId,s.UserId,s.ElapsedSeconds,s.CurrentQuestionIndex,s.IsCompleted,s.QuestionsJson,s.AnswersJson,t.TestType FROM TestSessions s JOIN Tests t ON t.TestId=s.TestId WHERE s.UserId=@u AND s.TestId=@t AND s.IsCompleted=0 ORDER BY s.SessionId DESC LIMIT 1"; using var cmd = new SqliteCommand(sql, c); cmd.Parameters.AddWithValue("@u", userId); cmd.Parameters.AddWithValue("@t", testId); using var r = cmd.ExecuteReader(); if (!r.Read()) return null; var dto = MapSession(r); dto.Questions = GetQuestionsByIds(dto.QuestionIds, c); return dto; }
+        private TestSessionDto MapSession(SqliteDataReader r)
+        { var questionsJson = r.GetString(r.GetOrdinal("QuestionsJson")); var answersJson = r.GetString(r.GetOrdinal("AnswersJson")); return new TestSessionDto { SessionId = r.GetInt32(r.GetOrdinal("SessionId")), TestId = r.GetInt32(r.GetOrdinal("TestId")), UserId = r.GetInt32(r.GetOrdinal("UserId")), ElapsedSeconds = r.GetInt32(r.GetOrdinal("ElapsedSeconds")), CurrentQuestionIndex = r.GetInt32(r.GetOrdinal("CurrentQuestionIndex")), IsCompleted = r.GetInt32(r.GetOrdinal("IsCompleted")) == 1, QuestionIds = JsonSerializer.Deserialize<List<int>>(questionsJson) ?? new(), Answers = JsonSerializer.Deserialize<List<AnswerDto>>(answersJson) ?? new(), TestType = r.GetString(r.GetOrdinal("TestType")) }; }
+        public void SaveSessionProgress(int sessionId, int currentIndex, int elapsedSeconds, IEnumerable<AnswerDto> answers)
+        { using var c = new SqliteConnection(_connectionString); c.Open(); EnableForeignKeys(c); const string sql = @"UPDATE TestSessions SET CurrentQuestionIndex=@i, ElapsedSeconds=@e, AnswersJson=@a, LastUpdatedAt=@lu WHERE SessionId=@s AND IsCompleted=0"; using var cmd = new SqliteCommand(sql, c); cmd.Parameters.AddWithValue("@i", currentIndex); cmd.Parameters.AddWithValue("@e", elapsedSeconds); cmd.Parameters.AddWithValue("@a", JsonSerializer.Serialize(answers)); cmd.Parameters.AddWithValue("@lu", DateTime.UtcNow.ToString("o")); cmd.Parameters.AddWithValue("@s", sessionId); cmd.ExecuteNonQuery(); }
+        public void CompleteSession(int sessionId, int correct, int total, int elapsedSeconds)
+        { using var c = new SqliteConnection(_connectionString); c.Open(); EnableForeignKeys(c); int testId, userId; using (var info = new SqliteCommand("SELECT TestId,UserId FROM TestSessions WHERE SessionId=@s", c)) { info.Parameters.AddWithValue("@s", sessionId); using var r = info.ExecuteReader(); if (!r.Read()) return; testId = r.GetInt32(0); userId = r.GetInt32(1); } var percent = total == 0 ? 0m : (decimal)correct / total * 100m; using (var res = new SqliteCommand(@"INSERT INTO TestResults (TestId,UserId,CorrectAnswers,TotalQuestions,ScorePercentage,TimeTaken,CompletedAt) VALUES (@t,@u,@c,@tot,@p,@time,@dt)", c)) { res.Parameters.AddWithValue("@t", testId); res.Parameters.AddWithValue("@u", userId); res.Parameters.AddWithValue("@c", correct); res.Parameters.AddWithValue("@tot", total); res.Parameters.AddWithValue("@p", percent); res.Parameters.AddWithValue("@time", elapsedSeconds); res.Parameters.AddWithValue("@dt", DateTime.UtcNow.ToString("o")); res.ExecuteNonQuery(); } using (var upd = new SqliteCommand("UPDATE TestSessions SET IsCompleted=1, LastUpdatedAt=@lu WHERE SessionId=@s", c)) { upd.Parameters.AddWithValue("@lu", DateTime.UtcNow.ToString("o")); upd.Parameters.AddWithValue("@s", sessionId); upd.ExecuteNonQuery(); } }
+        public List<Question> GetRandomQuestionsByCategory(string category, int count) => GetRandomQuestionsByCategory(category, count, null);
+        private List<Question> GetRandomQuestionsByCategory(string category, int count, SqliteConnection existing)
+        { category = NormalizeTestType(category); bool own = existing == null; var c = existing ?? new SqliteConnection(_connectionString); if (own) { c.Open(); EnableForeignKeys(c); } var list = new List<Question>(); const string sql = @"SELECT QuestionId, QuestionText, OptionA, OptionB, OptionC, OptionD, CorrectOption FROM Questions WHERE UPPER(Category)=UPPER(@cat) ORDER BY RANDOM() LIMIT @lim"; using var cmd = new SqliteCommand(sql, c); cmd.Parameters.AddWithValue("@cat", category); cmd.Parameters.AddWithValue("@lim", count); using var r = cmd.ExecuteReader(); while (r.Read()) list.Add(new Question { QuestionId = r.GetInt32(0), QuestionText = r.GetString(1), OptionA = r.GetString(2), OptionB = r.GetString(3), OptionC = r.GetString(4), OptionD = r.GetString(5), CorrectOption = r.GetString(6) }); if (own) c.Dispose(); return list; }
+        private List<Question> GetQuestionsByIds(List<int> ids, SqliteConnection c)
+        { if (ids.Count == 0) return new(); var paramNames = ids.Select((_, i) => "@p" + i).ToArray(); var sql = $"SELECT QuestionId, QuestionText, OptionA, OptionB, OptionC, OptionD, CorrectOption FROM Questions WHERE QuestionId IN ({string.Join(',', paramNames)})"; using var cmd = new SqliteCommand(sql, c); for (int i = 0; i < ids.Count; i++) cmd.Parameters.AddWithValue(paramNames[i], ids[i]); var map = new Dictionary<int, Question>(); using var r = cmd.ExecuteReader(); while (r.Read()) { var q = new Question { QuestionId = r.GetInt32(0), QuestionText = r.GetString(1), OptionA = r.GetString(2), OptionB = r.GetString(3), OptionC = r.GetString(4), OptionD = r.GetString(5), CorrectOption = r.GetString(6) }; map[q.QuestionId] = q; } var ordered = new List<Question>(); foreach (var id in ids) if (map.TryGetValue(id, out var q)) ordered.Add(q); return ordered; }
+        public void SaveTestResult(int testId, int userId, int correct, int total, int timeSec)
+        { using var connection = new SqliteConnection(_connectionString); connection.Open(); EnableForeignKeys(connection); var score = total == 0 ? 0 : (decimal)correct / total * 100m; var completedAt = DateTime.UtcNow.ToString("o"); const string sql = @"INSERT INTO TestResults (TestId, UserId, CorrectAnswers, TotalQuestions, ScorePercentage, TimeTaken, CompletedAt) VALUES (@t,@u,@c,@tot,@score,@time,@dt)"; using var cmd = new SqliteCommand(sql, connection); cmd.Parameters.AddWithValue("@t", testId); cmd.Parameters.AddWithValue("@u", userId); cmd.Parameters.AddWithValue("@c", correct); cmd.Parameters.AddWithValue("@tot", total); cmd.Parameters.AddWithValue("@score", score); cmd.Parameters.AddWithValue("@time", timeSec); cmd.Parameters.AddWithValue("@dt", completedAt); cmd.ExecuteNonQuery(); }
+
+        // Build up to 'count' question ids for a category (no repeats, no subject filter)
+        private List<int> GetQuestionIdsForCategory(SqliteConnection connection, string category, int count)
+        {
+            var ids = new List<int>();
+            const string sql = @"SELECT QuestionId FROM Questions WHERE UPPER(Category)=UPPER(@cat) ORDER BY RANDOM() LIMIT @lim";
+            using var cmd = new SqliteCommand(sql, connection);
+            cmd.Parameters.AddWithValue("@cat", category);
+            cmd.Parameters.AddWithValue("@lim", count);
+            using var r = cmd.ExecuteReader();
+            while (r.Read()) ids.Add(r.GetInt32(0));
+            return ids;
+        }
+
+        // Delete the DB file once and create a marker so it won't repeat on next app start
+        private void DeleteDatabaseOnce()
+        {
+            try
+            {
+                var dbPath = GetDatabasePath();
+                var dir = Path.GetDirectoryName(dbPath);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+                var marker = Path.Combine(FileSystem.AppDataDirectory, "db_reset_done.marker");
+                if (File.Exists(marker)) return;
+
+                if (File.Exists(dbPath)) File.Delete(dbPath);
+
+                File.WriteAllText(marker, $"DB reset at {DateTime.UtcNow:o}");
+            }
+            catch
+            {
+                // ignore errors in reset routine
+            }
+        }
+    }
+
+    public class UserStats { public int TotalTests { get; set; } public int CompletedLessons { get; set; } public int TotalRewards { get; set; } public double AverageScore { get; set; } }
+    public class UserTestSummary { public int TestId { get; set; } public double Score { get; set; } public DateTime CompletedAt { get; set; } public string TestType { get; set; } public string ScoreFormatted => $"{Score:F1}%"; public string DateFormatted => CompletedAt.ToLocalTime().ToString("MMM dd, yyyy"); }
+    public record AnswerDto(int QuestionId, string Selected);
+    public class TestSessionDto { public int SessionId { get; set; } public int TestId { get; set; } public int UserId { get; set; } public int ElapsedSeconds { get; set; } public int CurrentQuestionIndex { get; set; } public bool IsCompleted { get; set; } public List<int> QuestionIds { get; set; } = new(); public List<AnswerDto> Answers { get; set; } = new(); public string TestType { get; set; } = string.Empty; public List<Question> Questions { get; set; } = new(); }
+}

@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ContentPage x:Class="TestDatabaseApp.Views.TestPage"
+             x:Name="TestPageRoot"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Test">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="20">
+            <!-- Test metadata / intro -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="{Binding TestTypeTitle}" FontSize="26" FontAttributes="Bold" />
+                <Label Text="{Binding TestDescription}" FontSize="14" TextColor="Gray" />
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
+                    <Label Grid.Row="0" Text="Questions:" FontAttributes="Bold" />
+                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding TotalQuestionsPlanned}" />
+                    <Label Grid.Row="1" Text="Time Limit:" FontAttributes="Bold" />
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding TimeLimit}" />
+                    <Label Grid.Row="2" Text="Difficulty:" FontAttributes="Bold" />
+                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Difficulty}" />
+                </Grid>
+                <Button Text="{Binding StartButtonText}" Command="{Binding StartOrContinueCommand}" />
+            </VerticalStackLayout>
+
+            <!-- Questions visible only after start -->
+            <VerticalStackLayout IsVisible="{Binding HasStarted}" Spacing="16">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto">
+                    <Label Text="{Binding PositionText}" FontSize="18"/>
+                    <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                        <Button Text="Prev" Command="{Binding PrevQuestionCommand}" IsEnabled="{Binding HasPrev}"/>
+                        <Button Text="Next" Command="{Binding NextQuestionCommand}" IsEnabled="{Binding HasNext}"/>
+                    </HorizontalStackLayout>
+                </Grid>
+
+                <!-- Single question view -->
+                <Border StrokeShape="RoundRectangle 8" BackgroundColor="#F5F5F5" Padding="12">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="{Binding CurrentQuestion.QuestionText}" FontAttributes="Bold"/>
+                        <VerticalStackLayout Spacing="4">
+                            <RadioButton Content="{Binding CurrentQuestion.OptionA}" GroupName="CurrentQ" Value="A" CheckedChanged="OnOptionChecked" IsChecked="{Binding CurrentQuestion.SelectedOption, Converter={StaticResource EqualityConverter}, ConverterParameter=A}" IsEnabled="{Binding IsSubmitted, Converter={StaticResource InverseBoolConverter}}" />
+                            <RadioButton Content="{Binding CurrentQuestion.OptionB}" GroupName="CurrentQ" Value="B" CheckedChanged="OnOptionChecked" IsChecked="{Binding CurrentQuestion.SelectedOption, Converter={StaticResource EqualityConverter}, ConverterParameter=B}" IsEnabled="{Binding IsSubmitted, Converter={StaticResource InverseBoolConverter}}" />
+                            <RadioButton Content="{Binding CurrentQuestion.OptionC}" GroupName="CurrentQ" Value="C" CheckedChanged="OnOptionChecked" IsChecked="{Binding CurrentQuestion.SelectedOption, Converter={StaticResource EqualityConverter}, ConverterParameter=C}" IsEnabled="{Binding IsSubmitted, Converter={StaticResource InverseBoolConverter}}" />
+                            <RadioButton Content="{Binding CurrentQuestion.OptionD}" GroupName="CurrentQ" Value="D" CheckedChanged="OnOptionChecked" IsChecked="{Binding CurrentQuestion.SelectedOption, Converter={StaticResource EqualityConverter}, ConverterParameter=D}" IsEnabled="{Binding IsSubmitted, Converter={StaticResource InverseBoolConverter}}" />
+                        </VerticalStackLayout>
+                        <!-- Feedback after submission -->
+                        <Label Text="{Binding CurrentQuestion.FeedbackText}" 
+                               TextColor="{Binding CurrentQuestion.IsCorrect, Converter={StaticResource BoolToColorConverter}}"
+                               FontAttributes="Italic"
+                               IsVisible="{Binding IsSubmitted}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="Submit" Command="{Binding SubmitCommand}" IsEnabled="{Binding IsSubmitted, Converter={StaticResource InverseBoolConverter}}" />
+            </VerticalStackLayout>
+
+            <Label Text="{Binding ResultSummary}" FontAttributes="Bold" />
+            <Button Text="Back" Command="{Binding BackCommand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
