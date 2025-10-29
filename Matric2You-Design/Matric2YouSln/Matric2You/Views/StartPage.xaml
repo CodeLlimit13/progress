@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Matric2You.Views.StartPage"
+             Shell.FlyoutBehavior="Disabled"
+             Title=""
+             BackgroundColor="#F9FAFB">
+
+    <Grid RowDefinitions="Auto,*">
+        <ScrollView>
+            <VerticalStackLayout Padding="30" Spacing="35"
+                                 VerticalOptions="CenterAndExpand">
+
+                <!-- LOGO -->
+                <Image Source="dotnet_bot.png" 
+                       HeightRequest="150" 
+                       HorizontalOptions="Center" />
+
+                <!-- M2U Title -->
+                <Label Text="M2U"
+                       FontSize="72"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       TextColor="#0078D7" />
+
+                <!-- Welcome Card -->
+                <Border BackgroundColor="White" 
+                        Stroke="#E0E0E0"
+                        StrokeThickness="1" 
+                        StrokeShape="RoundRectangle 16"  
+                        Padding="25" 
+                        Margin="10">
+
+                    <VerticalStackLayout Spacing="20" HorizontalOptions="Center">
+
+                        <Label Text="Welcome to M2U"
+                               FontSize="26"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="#1A1A1A" />
+
+                        <Label Text="Your gateway to smarter studying."
+                               FontSize="14"
+                               HorizontalOptions="Center"
+                               TextColor="Gray"/>
+
+                        <!-- Register Button -->
+                        <Button Text="Register" 
+                                Clicked="OnNextClicked"
+                                FontSize="18"
+                                FontAttributes="Bold"
+                                TextColor="White"
+                                BackgroundColor="#0078D7" 
+                                CornerRadius="25"
+                                HeightRequest="55"
+                                WidthRequest="220"
+                                HorizontalOptions="Center"/>
+                        <!-- Login/Sign in Button -->
+                        <Button Text="Login" 
+                                Clicked="OnNextClicked1"
+                                FontSize="18"
+                                FontAttributes="Bold"
+                                TextColor="White"
+                                BackgroundColor="#0078D7" 
+                                CornerRadius="25"
+                                HeightRequest="55"
+                                WidthRequest="220"
+                                HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

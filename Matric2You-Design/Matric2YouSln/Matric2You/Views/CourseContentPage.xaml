@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Matric2You.Views.CourseContentPage"
+             Title="">
+    <Grid RowDefinitions="Auto,0,Auto">
+        <ScrollView Grid.Row="0" Grid.RowSpan="2">
+            <VerticalStackLayout Padding="20" Spacing="20">
+
+
+                <HorizontalStackLayout Grid.Column="0" Grid.Row="0" Spacing="40">
+                    <Label
+                        Text="Course Name"
+                        FontSize="Large"
+                        FontAttributes="Bold"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Start"
+                        TextColor="Black"
+                        />
+
+                    <Image
+                        Source="dotnet_bot.png"
+                        VerticalOptions="End"
+                        HorizontalOptions="End"
+                        HeightRequest="150"
+                        WidthRequest="200"
+                        />
+                </HorizontalStackLayout>
+
+                <Border
+                    Stroke="Black"
+                    StrokeThickness="1.5"
+                    StrokeShape="RoundRectangle 8"
+                    Padding="10">
+                        <VerticalStackLayout>
+                            <Label
+                            Text="This math course builds a strong foundation in algebra, geometry, and basic statistics. Students develop problem-solving and logical reasoning skills through clear explanations and practical exercises."
+                            LineBreakMode="WordWrap"
+                            HorizontalOptions="Start"
+                            VerticalOptions="Start"
+                            Margin="0,10,0,0"
+                            FontSize="16"
+                            TextColor="Black"/>
+                        </VerticalStackLayout>
+                </Border>
+
+
+                <HorizontalStackLayout Grid.Column="0" Grid.Row="0" Spacing="120">
+
+                    <Label
+                        Text="Text Format:"
+                        FontSize="20"
+                        HorizontalOptions="Start"
+                        VerticalOptions="Start"
+                        
+                        />
+
+                    <Button
+                        VerticalOptions="End"
+                        HorizontalOptions="End"
+                        Text="View"
+                        />
+
+                </HorizontalStackLayout>
+                
+                
+                <HorizontalStackLayout Grid.Column="0" Grid.Row="0" Spacing="40">
+
+                    <Label
+                        Text="Video/ Audio Content: "
+                        FontSize="20"
+                        HorizontalOptions="Start"
+                        VerticalOptions="Start"
+                        
+                        />
+
+                    <Button
+                        VerticalOptions="End"
+                        HorizontalOptions="End"
+                        Text="View"
+                        />
+
+                </HorizontalStackLayout>
+
+
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

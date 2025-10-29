@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Matric2You.Views.Onbording2"
+             Title="">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="25">
+
+            <!-- LOGO on top -->
+            <Image Source="dotnet_bot.png" 
+                   HeightRequest="150" 
+                   HorizontalOptions="Center" />
+
+            <!-- M2U Title -->
+            <Label Text="M2U"
+                   FontSize="70"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="Black" />
+
+            <!-- Gray Border with Form -->
+            <Border Background="WhiteSmoke" 
+                    StrokeThickness="1" 
+                    StrokeShape="RoundRectangle 8"  
+                    Padding="10" 
+                    Margin="5">
+
+                <VerticalStackLayout Padding="30,0" Spacing="25">
+
+                    <Label
+                        Text="Account Creation"
+                        Style="{StaticResource Headline}"
+                        SemanticProperties.HeadingLevel="Level1" />
+
+                    <!-- First Name -->
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="Name:" VerticalOptions="Center" />
+                        <Entry Placeholder="Enter First Name" x:Name="NamePicker" WidthRequest="200"/>
+                    </HorizontalStackLayout>
+
+                    <!-- Surname -->
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="Surname:" VerticalOptions="Center" />
+                        <Entry Placeholder="Enter Surname" x:Name="SurnamePicker" WidthRequest="200"/>
+                    </HorizontalStackLayout>
+
+                    <!-- Contact Number -->
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="Contact Number:" VerticalOptions="Center" />
+                        <Entry Placeholder="Enter Contact Number" x:Name="ContactPicker" WidthRequest="200"/>
+                    </HorizontalStackLayout>
+
+                    <!-- Home Language -->
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="Id Number:" VerticalOptions="Center" />
+                        <Entry Placeholder="Enter Id Number" x:Name="IdNumberPicker" WidthRequest="200"/>
+                    </HorizontalStackLayout>
+
+                    
+
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="Next" 
+                    Clicked="OnNextClicked"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    BackgroundColor="#0078D7" 
+                    CornerRadius="12"
+                    HeightRequest="50"
+                    WidthRequest="200"
+                    HorizontalOptions="Center"
+                    Margin="0,20,0,0"/>
+            
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

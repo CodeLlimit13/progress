@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Matric2You.Models"
+             xmlns:helpers="clr-namespace:Matric2You.Helpers"
+             x:Class="Matric2You.Views.ChatBotPage">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <helpers:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
+            <helpers:NullToBoolConverter x:Key="NullToBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto" ColumnDefinitions="*,Auto">
+        <!-- Single chat window -->
+        <CollectionView x:Name="ChatList"
+                        Grid.Row="0" Grid.ColumnSpan="2"
+                        ItemsSource="{Binding ChatItems}"
+                        ItemsLayout="VerticalList"
+                        Margin="10"
+                        VerticalScrollBarVisibility="Always">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout>
+                        <!-- Plain text display (visible when HtmlSource is null) -->
+                        <Label Text="{Binding Content}"
+                               IsVisible="{Binding HtmlSource, Converter={StaticResource NullToBoolConverter}}"
+                               LineBreakMode="WordWrap" />
+
+                        <!-- KaTeX/HTML display (visible when HtmlSource is not null) -->
+                        <WebView Source="{Binding HtmlSource}"
+                                 IsVisible="{Binding HtmlSource, Converter={StaticResource NotNullToBoolConverter}}"
+                                 HeightRequest="100" /> <!-- Height will be auto-adjusted by the script -->
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Input bar at bottom -->
+        <Entry Grid.Row="1" Grid.Column="0"
+               Text="{Binding UserInput}"
+               Placeholder="Type your message..."
+               VerticalOptions="Center"
+               Margin="10" />
+
+        <Button Grid.Row="1" Grid.Column="1"
+                Text="Send"
+                Command="{Binding SendMessageCommand}"
+                VerticalOptions="Center"
+                Margin="10" />
+    </Grid>
+
+</ContentPage>

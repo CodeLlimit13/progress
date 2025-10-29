@@ -1,0 +1,202 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Matric2You.Views.HomePage"
+             Shell.FlyoutBehavior="Disabled"
+             Shell.TabBarBackgroundColor="Black"
+             Title="">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Scrollable Content -->
+        <ScrollView Grid.Row="0" Grid.RowSpan="2">
+            <VerticalStackLayout Padding="20" Spacing="20">
+
+
+                <!-- M2U Title + ImageButton Row -->
+                <HorizontalStackLayout Grid.Column="0" Grid.Row="0" Spacing="40">
+                    <Label Text="Welcome To M2U"
+                            FontSize="35"
+                            FontAttributes="None"
+                            VerticalOptions="Center"
+                            TextColor="Black"
+                            HorizontalOptions="Start"
+                           />
+
+                    <ImageButton Source="dotnet_bot.png"
+                                 HorizontalOptions="End"
+                                 VerticalOptions="End"
+                                 WidthRequest="40"
+                                 HeightRequest="40"
+                                 BorderWidth="1"
+                                 BorderColor="Black"
+                                 />
+                </HorizontalStackLayout>
+
+                
+                <VerticalStackLayout 
+                    Spacing="10" 
+                    >
+
+                    <Border 
+                        Stroke="Black"
+                        StrokeThickness="1.5"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="8"
+                        >
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                      Tapped="OnBorderTapped2"   />
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout>
+                            <Label
+                            Text="Location of Test Center:"
+                            FontSize="20"
+                            FontAttributes="Bold" 
+                            HorizontalOptions="Start"
+                            VerticalOptions="Start"/>
+                            <Label
+                            Text="Location of Registation Center:"
+                            FontSize="20"
+                            FontAttributes="Bold" 
+                            HorizontalOptions="Start"
+                            VerticalOptions="Start"/>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+
+
+                <Grid RowDefinitions="Auto,*">
+                    <!-- Top Bar -->
+                    <Grid Grid.Row="0" >
+                        <Label Text="Courses"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center" />
+                    </Grid>
+
+                    <!-- Scrollable Courses -->
+                    <ScrollView
+                        Grid.Row="1"
+                        Orientation="Horizontal"
+                        >
+
+                        <HorizontalStackLayout Spacing="5">
+
+                            <!-- Card 1 -->
+                            <Border 
+                                Stroke="Black"
+                                StrokeThickness="1.5"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="10">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Tapped="OnBorderTapped" />
+                                </Border.GestureRecognizers>
+
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Course Name 1" FontSize="18" FontAttributes="Bold" />
+                                    <Label Text="Duration: 6 Weeks" FontSize="14" TextColor="Gray"/>
+                                    <Label Text="Difficulty: Intermediate" FontSize="14" TextColor="Gray"/>
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <!-- Card 2 -->
+                            <Border 
+                                Stroke="Black"
+                                StrokeThickness="1.5"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="10">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Course Name 2" FontSize="18" FontAttributes="Bold" />
+                                    <Label Text="Duration: 8 Weeks" FontSize="14" TextColor="Gray"/>
+                                    <Label Text="Difficulty: Beginner" FontSize="14" TextColor="Gray"/>
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <!-- Card 3 -->
+                            <Border 
+                                Stroke="Black"
+                                StrokeThickness="1.5"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="10">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Course Name 3" FontSize="18" FontAttributes="Bold" />
+                                    <Label Text="Duration: 10 Weeks" FontSize="14" TextColor="Gray"/>
+                                    <Label Text="Difficulty: Advanced" FontSize="14" TextColor="Gray"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </HorizontalStackLayout>
+                    </ScrollView>
+                </Grid>
+
+                <VerticalStackLayout>
+
+                    <Border
+                        Stroke="Black"
+                        StrokeThickness="1.5"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                        Tapped="OnBorderTapped1" />
+                        </Border.GestureRecognizers>
+
+                        <Grid>
+
+                            <VerticalStackLayout>
+                                <Label Text="Learning Path" FontSize="18" FontAttributes="Bold"/>
+                                <ProgressBar
+                                    Progress="0.1"
+                                    ProgressColor="Crimson"
+                                    BackgroundColor="DarkSlateGrey"
+                                    />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <Grid RowDefinitions="Auto,*">
+                    <Grid Grid.Row="0" Padding="5">
+                        <Label
+                            Text="Daily Exercise:" FontSize="20" FontAttributes="Bold"/>
+                    </Grid>
+                    <ScrollView
+                        Orientation="Vertical"
+                        Grid.Row="1"
+                        Padding="5"
+                        >
+                        <VerticalStackLayout Spacing="5" >
+                            <Border 
+                                    Stroke="Black"
+                                    StrokeThickness="1.5"
+                                    StrokeShape="RoundRectangle 8"
+                                    Padding="10">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Course Name 3" FontSize="18" FontAttributes="Bold" />
+                                    <Label Text="Duration: 10 Weeks" FontSize="14" TextColor="Gray"/>
+                                    <Label Text="Difficulty: Advanced" FontSize="14" TextColor="Gray"/>
+                                </VerticalStackLayout>
+                            </Border>
+                            
+                            <Border 
+                                    Stroke="Black"
+                                    StrokeThickness="1.5"
+                                    StrokeShape="RoundRectangle 8"
+                                    Padding="10">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Course Name 3" FontSize="18" FontAttributes="Bold" />
+                                    <Label Text="Duration: 10 Weeks" FontSize="14" TextColor="Gray"/>
+                                    <Label Text="Difficulty: Advanced" FontSize="14" TextColor="Gray"/>
+                                </VerticalStackLayout>
+                            </Border>
+
+                        </VerticalStackLayout>
+                    </ScrollView>
+                </Grid>                
+             </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

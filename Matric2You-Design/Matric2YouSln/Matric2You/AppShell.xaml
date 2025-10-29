@@ -1,0 +1,44 @@
+<Shell
+    x:Class="Matric2You.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Views="clr-namespace:Matric2You.Views"
+    Title="Matric2You">
+
+    <!-- Onboarding pages (no tabs, no flyout) -->
+    <ShellContent
+        ContentTemplate="{DataTemplate Views:StartPage}"
+        Route="StartPage"
+        Shell.FlyoutBehavior="Disabled" />
+    <ShellContent
+        ContentTemplate="{DataTemplate Views:Onbording1}"
+        Route="Onbording1"
+        Shell.FlyoutBehavior="Disabled" />
+    <ShellContent
+        ContentTemplate="{DataTemplate Views:Onbording2}"
+        Route="Onbording2"
+        Shell.FlyoutBehavior="Disabled" />
+    <ShellContent
+        ContentTemplate="{DataTemplate Views:LoginPage}"
+        Route="LoginPage"
+        Shell.FlyoutBehavior="Disabled" />
+
+    <!-- TabBar navigation (main app) -->
+    <TabBar>
+        <ShellContent
+            Title="Home"
+            Icon="home.png"
+            ContentTemplate="{DataTemplate Views:HomePage}"
+            Route="HomePage"/>
+        <ShellContent
+            Title="ChatBot"
+            Icon="profile.png"
+            ContentTemplate="{DataTemplate Views:ChatBotPage}"
+            Route="ChatBotPage" />
+        <ShellContent
+            Title="Content"
+            Icon="ChatBot.png"
+            ContentTemplate="{DataTemplate Views:CoursePage}" 
+            Route="ProfilePage" />
+    </TabBar>
+</Shell>
