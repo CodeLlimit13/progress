@@ -3,12 +3,8 @@
   "WorkspaceRootPath": "C:\\Github repos\\progress\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|c:\\github repos\\progress\\testdatabaseapp\\viewmodels\\testviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|solutionrelative:testdatabaseapp\\viewmodels\\testviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|c:\\github repos\\progress\\testdatabaseapp\\views\\testpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|solutionrelative:testdatabaseapp\\views\\testpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|c:\\github repos\\progress\\testdatabaseapp\\models\\progresstracking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|solutionrelative:testdatabaseapp\\models\\progresstracking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|c:\\github repos\\progress\\testdatabaseapp\\models\\aiinteraction.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -17,6 +13,14 @@
     {
       "AbsoluteMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|c:\\github repos\\progress\\testdatabaseapp\\services\\testdatabaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|solutionrelative:testdatabaseapp\\services\\testdatabaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|c:\\github repos\\progress\\testdatabaseapp\\viewmodels\\testviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|solutionrelative:testdatabaseapp\\viewmodels\\testviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|c:\\github repos\\progress\\testdatabaseapp\\views\\testpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|solutionrelative:testdatabaseapp\\views\\testpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{E46F241B-BD97-43E0-8B2F-E5BE278B30DF}|TestDatabaseApp\\TestDatabaseApp.csproj|c:\\github repos\\progress\\testdatabaseapp\\views\\userdashboardpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
@@ -38,7 +42,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -70,7 +74,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 0,
+              "Title": "ProgressTracking.cs",
+              "DocumentMoniker": "C:\\Github repos\\progress\\TestDatabaseApp\\Models\\ProgressTracking.cs",
+              "RelativeDocumentMoniker": "TestDatabaseApp\\Models\\ProgressTracking.cs",
+              "ToolTip": "C:\\Github repos\\progress\\TestDatabaseApp\\Models\\ProgressTracking.cs",
+              "RelativeToolTip": "TestDatabaseApp\\Models\\ProgressTracking.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-15T07:51:34.42Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "TestPage.xaml",
               "DocumentMoniker": "C:\\Github repos\\progress\\TestDatabaseApp\\Views\\TestPage.xaml",
               "RelativeDocumentMoniker": "TestDatabaseApp\\Views\\TestPage.xaml",
@@ -78,12 +95,11 @@
               "RelativeToolTip": "TestDatabaseApp\\Views\\TestPage.xaml",
               "ViewState": "AgIAADkAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-10-10T07:30:56.672Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-10T07:30:56.672Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "AIinteraction.cs",
               "DocumentMoniker": "C:\\Github repos\\progress\\TestDatabaseApp\\Models\\AIinteraction.cs",
               "RelativeDocumentMoniker": "TestDatabaseApp\\Models\\AIinteraction.cs",
@@ -91,51 +107,47 @@
               "RelativeToolTip": "TestDatabaseApp\\Models\\AIinteraction.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-10T07:19:49.249Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-10T07:19:49.249Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "TestViewModel.cs",
               "DocumentMoniker": "C:\\Github repos\\progress\\TestDatabaseApp\\ViewModels\\TestViewModel.cs",
               "RelativeDocumentMoniker": "TestDatabaseApp\\ViewModels\\TestViewModel.cs",
               "ToolTip": "C:\\Github repos\\progress\\TestDatabaseApp\\ViewModels\\TestViewModel.cs",
               "RelativeToolTip": "TestDatabaseApp\\ViewModels\\TestViewModel.cs",
-              "ViewState": "AgIAABoBAAAA4MzMzEwrwBEAAAAzAAAAAAAAAA==",
+              "ViewState": "AgIAAA4BAACAngAAAIAVwM8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-09T08:12:25.761Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-09T08:12:25.761Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "TestPage.xaml.cs",
               "DocumentMoniker": "C:\\Github repos\\progress\\TestDatabaseApp\\Views\\TestPage.xaml.cs",
               "RelativeDocumentMoniker": "TestDatabaseApp\\Views\\TestPage.xaml.cs",
               "ToolTip": "C:\\Github repos\\progress\\TestDatabaseApp\\Views\\TestPage.xaml.cs",
               "RelativeToolTip": "TestDatabaseApp\\Views\\TestPage.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-10T07:25:08.387Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-10T07:25:08.387Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "TestDatabaseService.cs",
               "DocumentMoniker": "C:\\Github repos\\progress\\TestDatabaseApp\\Services\\TestDatabaseService.cs",
               "RelativeDocumentMoniker": "TestDatabaseApp\\Services\\TestDatabaseService.cs",
               "ToolTip": "C:\\Github repos\\progress\\TestDatabaseApp\\Services\\TestDatabaseService.cs",
               "RelativeToolTip": "TestDatabaseApp\\Services\\TestDatabaseService.cs",
-              "ViewState": "AgIAAP0AAAAAAAAAAAAwwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAwBAACg7MzMzMwpwPMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-09T08:13:40.529Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-09T08:13:40.529Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "UserDashboardPage.xaml",
               "DocumentMoniker": "C:\\Github repos\\progress\\TestDatabaseApp\\Views\\UserDashboardPage.xaml",
               "RelativeDocumentMoniker": "TestDatabaseApp\\Views\\UserDashboardPage.xaml",
@@ -143,12 +155,11 @@
               "RelativeToolTip": "TestDatabaseApp\\Views\\UserDashboardPage.xaml",
               "ViewState": "AgIAADsAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-10-09T08:05:19.564Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-09T08:05:19.564Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "UserDashboardViewModel.cs",
               "DocumentMoniker": "C:\\Github repos\\progress\\TestDatabaseApp\\ViewModels\\UserDashboardViewModel.cs",
               "RelativeDocumentMoniker": "TestDatabaseApp\\ViewModels\\UserDashboardViewModel.cs",
