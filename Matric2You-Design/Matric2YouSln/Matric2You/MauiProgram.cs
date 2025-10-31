@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging;
 using Matric2You.Services;
 using Matric2You.ViewModel;
 using Matric2You.Views;
- 
+using Matric2You.Helpers;
+
 namespace Matric2You
 {
     public static class MauiProgram
@@ -64,7 +64,22 @@ namespace Matric2You
             builder.Services.AddSingleton<ChatViewModel>();
             builder.Services.AddSingleton<ChatBotPage>();
 
-            return builder.Build();
+            // Progress tracking additions
+            builder.Services.AddSingleton(new HttpClient
+            {
+                BaseAddress = new Uri(ApiConfig.BaseUrl, UriKind.Absolute),
+                Timeout = TimeSpan.FromSeconds(30)
+            });
+            builder.Services.AddSingleton<IUserContext, UserContext>();
+            builder.Services.AddSingleton<IConnectivityService, ConnectivityService>();
+            builder.Services.AddSingleton<IProgressApiService, ProgressApiService>();
+            builder.Services.AddSingleton<IOfflineQueueService, OfflineQueueService>();
+            builder.Services.AddTransient<LearningPathViewModel>();
+            builder.Services.AddTransient<CoursePageViewModel>();
+
+            var app = builder.Build();
+            ServiceHelper.Initialize(app.Services);
+            return app;
         }
     }
 }
