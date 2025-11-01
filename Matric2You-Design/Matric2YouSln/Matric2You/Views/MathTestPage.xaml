@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+ x:Class="Matric2You.Views.MathTestPage"
+ Title="Math Test">
+ <ScrollView>
+ <VerticalStackLayout Padding="16" Spacing="16">
+ <Label x:Name="TitleLabel" FontSize="20" FontAttributes="Bold"/>
+
+ <CollectionView x:Name="QuestionsList" SelectionMode="None">
+ <CollectionView.ItemTemplate>
+ <DataTemplate>
+ <VerticalStackLayout Spacing="8" Padding="8" BackgroundColor="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
+ <Label Text="{Binding Text}" FontAttributes="Bold" />
+ <Picker ItemsSource="{Binding Options}" SelectedIndex="{Binding SelectedIndex}"/>
+ </VerticalStackLayout>
+ </DataTemplate>
+ </CollectionView.ItemTemplate>
+ </CollectionView>
+
+ <Button Text="Submit" Clicked="OnSubmitClicked"/>
+ </VerticalStackLayout>
+ </ScrollView>
+</ContentPage>

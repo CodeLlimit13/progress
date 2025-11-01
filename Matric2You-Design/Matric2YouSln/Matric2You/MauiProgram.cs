@@ -77,6 +77,11 @@ namespace Matric2You
             builder.Services.AddTransient<LearningPathViewModel>();
             builder.Services.AddTransient<CoursePageViewModel>();
 
+            // Local maths test progress persistence
+            builder.Services.AddSingleton<ITestProgressService, TestProgressService>();
+            // Local study progress persistence
+            builder.Services.AddSingleton<IStudyProgressService, StudyProgressService>();
+
             var app = builder.Build();
             ServiceHelper.Initialize(app.Services);
             return app;

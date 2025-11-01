@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+ x:Class="Matric2You.Views.GeometryPage"
+ Title="Geometry">
+ <Grid RowDefinitions="Auto,Auto,*" Padding="16" RowSpacing="12">
+ <Label Grid.Row="0" Text="Geometry Study Guide" FontAttributes="Bold" FontSize="22" />
+ <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+ <Label Text="Progress:" VerticalOptions="Center"/>
+ <ProgressBar x:Name="Progress" Grid.Column="1" Progress="0" WidthRequest="180" />
+ </Grid>
+ <ScrollView x:Name="Scroller" Grid.Row="2">
+ <VerticalStackLayout Spacing="12">
+ <Border x:Name="Sec1" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
+ <VerticalStackLayout Spacing="6">
+ <Label Text="Section1: Angles" FontAttributes="Bold" />
+ <Label Text="- Right angle:90 deg; Acute: &lt;90; Obtuse: &gt;90." />
+ <Label Text="- Complementary sum:90; Supplementary sum:180." />
+ </VerticalStackLayout>
+ </Border>
+
+ <Border x:Name="Sec2" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
+ <VerticalStackLayout Spacing="6">
+ <Label Text="Section2: Triangles" FontAttributes="Bold" />
+ <Label Text="- Pythagorean theorem: a^2 + b^2 = c^2 (right triangles)." />
+ <Label Text="- Interior angles sum to180." />
+ </VerticalStackLayout>
+ </Border>
+
+ <Border x:Name="Sec3" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
+ <VerticalStackLayout Spacing="6">
+ <Label Text="Section3: Area &amp; Perimeter" FontAttributes="Bold" />
+ <Label Text="- Rectangle: A = l*w; P =2*(l + w)." />
+ <Label Text="- Triangle: A =0.5*b*h." />
+ </VerticalStackLayout>
+ </Border>
+
+ <Border x:Name="Sec4" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
+ <VerticalStackLayout Spacing="6">
+ <Label Text="Section4: Circles" FontAttributes="Bold" />
+ <Label Text="- Circumference: C =2*pi*r; Area: A = pi*r^2." />
+ </VerticalStackLayout>
+ </Border>
+
+ <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+ <Label x:Name="SectionLabel" Text="Section1 of4" VerticalOptions="Center" />
+ <HorizontalStackLayout Grid.Column="1" Spacing="8">
+ <Button Text="Prev" Clicked="OnPrevClicked" />
+ <Button Text="Next" Clicked="OnNextClicked" />
+ </HorizontalStackLayout>
+ </Grid>
+
+ <Button Text="Back" Clicked="OnBackClicked" />
+ </VerticalStackLayout>
+ </ScrollView>
+ </Grid>
+</ContentPage>

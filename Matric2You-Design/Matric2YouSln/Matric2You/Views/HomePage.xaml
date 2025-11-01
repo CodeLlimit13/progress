@@ -149,7 +149,8 @@
                             <VerticalStackLayout>
                                 <Label Text="Learning Path" FontSize="18" FontAttributes="Bold"/>
                                 <ProgressBar
-                                    Progress="0.1"
+                                    x:Name="LearningPathProgress"
+                                    Progress="0"
                                     ProgressColor="Crimson"
                                     BackgroundColor="DarkSlateGrey"
                                     />

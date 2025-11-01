@@ -10,48 +10,110 @@
  </ResourceDictionary>
  </ContentPage.Resources>
 
+ <RefreshView IsRefreshing="{Binding IsBusy}" Command="{Binding RefreshCommand}">
  <ScrollView>
- <VerticalStackLayout Padding="16" Spacing="12">
- <Label Text="Overall Progress" FontAttributes="Bold" FontSize="20" />
+ <VerticalStackLayout Padding="16" Spacing="16">
 
- <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
- <Label Text="Completion" />
- <ProgressBar Grid.Column="1"
- Progress="{Binding Summary.CompletionPercent, Converter={StaticResource PercentTo0to1Converter}}" />
- </Grid>
+ <!-- Header: user name -->
+ <Label Text="{Binding UserName, StringFormat='Welcome, {0}'}" FontAttributes="Bold" FontSize="22" />
 
- <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
- <Label Text="Average Score" />
- <Label Grid.Column="1" Text="{Binding Summary.AverageScore, StringFormat='{0:0.#}%'}" />
- </Grid>
-
- <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
- <Label Text="Lessons" />
- <Label Grid.Column="1"
- Text="{Binding Summary.TotalLessons, StringFormat='Total: {0}'}" />
- </Grid>
-
- <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+ <!-- Four dashboard blocks:2x2 -->
+ <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+ <Border Grid.Row="0" Grid.Column="0" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F2F2F2, Dark=#222}">
  <VerticalStackLayout>
- <Label Text="Completed" HorizontalTextAlignment="Center" />
- <Label Text="{Binding Summary.CompletedLessons}" HorizontalTextAlignment="Center" />
+ <Label Text="Total Tests" FontAttributes="Bold" />
+ <Label Text="{Binding TotalTests}" FontSize="18" />
  </VerticalStackLayout>
+ </Border>
+ <Border Grid.Row="0" Grid.Column="1" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F2F2F2, Dark=#222}">
  <VerticalStackLayout>
- <Label Text="In Progress" HorizontalTextAlignment="Center" />
- <Label Text="{Binding Summary.InProgressLessons}" HorizontalTextAlignment="Center" />
+ <Label Text="Completed Tests" FontAttributes="Bold" />
+ <Label Text="{Binding CompletedTests}" FontSize="18" />
  </VerticalStackLayout>
+ </Border>
+ <Border Grid.Row="1" Grid.Column="0" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F2F2F2, Dark=#222}">
  <VerticalStackLayout>
- <Label Text="Not Started" HorizontalTextAlignment="Center" />
- <Label Text="{Binding Summary.NotStartedLessons}" HorizontalTextAlignment="Center" />
+ <Label Text="Total Rewards" FontAttributes="Bold" />
+ <Label Text="{Binding TotalRewards}" FontSize="18" />
+ </VerticalStackLayout>
+ </Border>
+ <Border Grid.Row="1" Grid.Column="1" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F2F2F2, Dark=#222}">
+ <VerticalStackLayout>
+ <Label Text="Average Score" FontAttributes="Bold" />
+ <Label Text="{Binding AverageScore, StringFormat='{0:0.#}%'}" FontSize="18" />
+ </VerticalStackLayout>
+ </Border>
+ </Grid>
+
+ <!-- Mathematics Tests (only UI retained) -->
+ <Label Text="Mathematics Tests" FontAttributes="Bold" FontSize="20" />
+ <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+ <!-- Practice -->
+ <VerticalStackLayout Grid.Column="0">
+ <Button Text="Practice" Clicked="OnPracticeClicked" />
+ <Label Text="{Binding PracticeProgress.ScorePercent, StringFormat='Score: {0:0.#}%'}" HorizontalTextAlignment="Center" />
+ <Label HorizontalTextAlignment="Center">
+ <Label.FormattedText>
+ <FormattedString>
+ <Span Text="Answered: " />
+ <Span Text="{Binding PracticeProgress.Answered}" />
+ <Span Text="/" />
+ <Span Text="{Binding PracticeProgress.TotalQuestions}" />
+ </FormattedString>
+ </Label.FormattedText>
+ </Label>
+ <ProgressBar Progress="{Binding PracticeProgress.ScorePercent, Converter={StaticResource PercentTo0to1Converter}}" />
+ </VerticalStackLayout>
+
+ <!-- Quizz (two z) -->
+ <VerticalStackLayout Grid.Column="1">
+ <Button Text="Quizz" Clicked="OnQuizClicked" />
+ <Label Text="{Binding QuizProgress.ScorePercent, StringFormat='Score: {0:0.#}%'}" HorizontalTextAlignment="Center" />
+ <Label HorizontalTextAlignment="Center">
+ <Label.FormattedText>
+ <FormattedString>
+ <Span Text="Answered: " />
+ <Span Text="{Binding QuizProgress.Answered}" />
+ <Span Text="/" />
+ <Span Text="{Binding QuizProgress.TotalQuestions}" />
+ </FormattedString>
+ </Label.FormattedText>
+ </Label>
+ <ProgressBar Progress="{Binding QuizProgress.ScorePercent, Converter={StaticResource PercentTo0to1Converter}}" />
+ </VerticalStackLayout>
+
+ <!-- Exam -->
+ <VerticalStackLayout Grid.Column="2">
+ <Button Text="Exam" Clicked="OnExamClicked" />
+ <Label Text="{Binding ExamProgress.ScorePercent, StringFormat='Score: {0:0.#}%'}" HorizontalTextAlignment="Center" />
+ <Label HorizontalTextAlignment="Center">
+ <Label.FormattedText>
+ <FormattedString>
+ <Span Text="Answered: " />
+ <Span Text="{Binding ExamProgress.Answered}" />
+ <Span Text="/" />
+ <Span Text="{Binding ExamProgress.TotalQuestions}" />
+ </FormattedString>
+ </Label.FormattedText>
+ </Label>
+ <ProgressBar Progress="{Binding ExamProgress.ScorePercent, Converter={StaticResource PercentTo0to1Converter}}" />
  </VerticalStackLayout>
  </Grid>
 
- <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
- <Label Text="Time Spent" />
- <Label Grid.Column="1" Text="{Binding Summary.TimeSpentMinutes, StringFormat='{0} min'}" />
+ <!-- Learning Content (renamed from Study Pages) -->
+ <Label Text="Learning Content" FontAttributes="Bold" FontSize="20" />
+ <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+ <VerticalStackLayout Grid.Column="0">
+ <Button Text="Algebra" Clicked="OnAlgebraClicked" />
+ <Label Text="Foundations: variables, equations, factoring." TextColor="Gray" />
+ </VerticalStackLayout>
+ <VerticalStackLayout Grid.Column="1">
+ <Button Text="Geometry" Clicked="OnGeometryClicked" />
+ <Label Text="Angles, triangles, area, circles." TextColor="Gray" />
+ </VerticalStackLayout>
  </Grid>
 
- <Label Text="Pull to refresh" FontAttributes="Italic" TextColor="Gray" />
  </VerticalStackLayout>
  </ScrollView>
+ </RefreshView>
 </ContentPage>
