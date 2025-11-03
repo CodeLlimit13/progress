@@ -1,6 +1,7 @@
 using Matric2You.Models;
 using Matric2You.Services;
 using Matric2You.Helpers;
+using Microsoft.Maui.Controls;
 
 namespace Matric2You.Views;
 
@@ -38,6 +39,21 @@ public partial class AlgebraPage : ContentPage
         SectionLabel.Text = $"Section {_currentSection + 1} of {_totalSections}";
         // Persist
         _study.Save(_user, StudyTopic.Algebra, _totalSections, _currentSection);
+        var primaryBtn = this.FindByName<Button>("PrimaryActionButton");
+        var nextBtn = this.FindByName<Button>("NextButton");
+        bool onLast = _currentSection >= _totalSections - 1;
+        // If on last section, mark completed and reward once
+        if (onLast)
+        {
+            _study.MarkCompletedAndReward(_user, StudyTopic.Algebra);
+            if (primaryBtn is not null) primaryBtn.Text = "Complete";
+            if (nextBtn is not null) nextBtn.IsVisible = false;
+        }
+        else
+        {
+            if (primaryBtn is not null) primaryBtn.Text = "Back";
+            if (nextBtn is not null) nextBtn.IsVisible = true;
+        }
     }
 
     private void OnPrevClicked(object sender, EventArgs e)
@@ -56,7 +72,7 @@ public partial class AlgebraPage : ContentPage
         UpdateUi();
     }
 
-    private async void OnBackClicked(object sender, EventArgs e)
+    private async void OnPrimaryActionClicked(object sender, EventArgs e)
     {
         await Navigation.PopAsync();
     }

@@ -19,8 +19,16 @@ public abstract class BaseViewModel : INotifyPropertyChanged
  => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
  private bool _isBusy;
- public bool IsBusy { get => _isBusy; set => SetProperty(ref _isBusy, value); }
+ public bool IsBusy
+ {
+ get => _isBusy;
+ set => SetProperty(ref _isBusy, value);
+ }
 
  private string? _error;
- public string? Error { get => _error; set => SetProperty(ref _error, value); }
+ public string? Error
+ {
+ get => _error;
+ set => SetProperty(ref _error, value);
+ }
 }

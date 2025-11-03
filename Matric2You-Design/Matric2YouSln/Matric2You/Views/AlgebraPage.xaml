@@ -1,58 +1,289 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
- xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
- x:Class="Matric2You.Views.AlgebraPage"
- Title="Algebra">
- <Grid RowDefinitions="Auto,Auto,*" Padding="16" RowSpacing="12">
- <Label Grid.Row="0" Text="Algebra Study Guide" FontAttributes="Bold" FontSize="22" />
- <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
- <Label Text="Progress:" VerticalOptions="Center"/>
- <ProgressBar x:Name="Progress" Grid.Column="1" Progress="0" WidthRequest="180" />
- </Grid>
- <ScrollView x:Name="Scroller" Grid.Row="2">
- <VerticalStackLayout Spacing="12">
- <Border x:Name="Sec1" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
- <VerticalStackLayout Spacing="6">
- <Label Text="Section1: Basics" FontAttributes="Bold" />
- <Label Text="- Variable: a symbol (like x) representing a number." />
- <Label Text="- Expression: combination of numbers/variables/operations (e.g.,2x +3)." />
- <Label Text="- Equation: states two expressions are equal (e.g.,2x +3 =9)." />
- </VerticalStackLayout>
- </Border>
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             x:Class="Matric2You.Views.AlgebraPage"
+             Title="Algebra">
+    <Grid RowDefinitions="Auto,Auto,*" Padding="16" RowSpacing="12">
+        <Label Grid.Row="0"
+               Text="Algebra Study Guide"
+               FontAttributes="Bold"
+               FontSize="22" />
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <Label Text="Progress:"
+                   VerticalOptions="Center" />
+            <ProgressBar x:Name="Progress"
+                         Grid.Column="1"
+                         Progress="0"
+                         WidthRequest="180" />
+        </Grid>
+        <ScrollView x:Name="Scroller" Grid.Row="2">
+            <VerticalStackLayout Spacing="16">
 
- <Border x:Name="Sec2" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
- <VerticalStackLayout Spacing="6">
- <Label Text="Section2: Solving Linear Equations" FontAttributes="Bold" />
- <Label Text="Example:2x +6 =14 ->2x =8 -> x =4" />
- <Label Text="Steps: combine like terms, isolate x, keep the equation balanced." />
- </VerticalStackLayout>
- </Border>
+                <!-- Section1: Basics -->
+                <Border x:Name="Sec1"
+                       Padding="14"
+                       StrokeThickness="0"
+                       Background="{AppThemeBinding Light=#FFFFFF, Dark=#222}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#000000"
+                               Offset="0,2"
+                               Radius="8"
+                               Opacity="0.12" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Section1: Basics"
+                               FontAttributes="Bold"
+                               FontSize="18" />
+                        <Label Text="Key terms"
+                               FontAttributes="Bold"
+                               TextColor="#555" />
+                        <Label LineHeight="1.25"
+                               Text="• Variable: a symbol (like x) representing a number." />
+                        <Label LineHeight="1.25"
+                               Text="• Constant: a fixed number (e.g.,5, −3,10)." />
+                        <Label LineHeight="1.25"
+                               Text="• Term: a number, a variable, or a product (e.g.,7x, −4y,9)." />
+                        <Label LineHeight="1.25"
+                               Text="• Coefficient: the number multiplying a variable (e.g.,7 in7x)." />
+                        <Label LineHeight="1.25"
+                               Text="• Expression: combination of terms (e.g.,2x +3)." />
+                        <Label LineHeight="1.25"
+                               Text="• Equation: two expressions set equal (e.g.,2x +3 =9)." />
+                        <Label Text="Examples"
+                               FontAttributes="Bold"
+                               Margin="0,6,0,0"
+                               TextColor="#555" />
+                        <Label LineHeight="1.25"
+                               Text="• Evaluate: for x =4:3x +5 =3(4) +5 =17." />
+                        <Border Background="{AppThemeBinding Light=#F5F7FF, Dark=#333}"
+                               StrokeThickness="0"
+                               Padding="8"
+                               Margin="0,6,0,0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Label Text="Distributive: a(b + c) = ab + ac; e.g.,2(x +3) =2x +6."
+                                   LineHeight="1.25" />
+                        </Border>
+                        <!-- Illustration below content -->
+                        <VerticalStackLayout Spacing="4" Margin="0,8,0,0">
+                            <Grid WidthRequest="120"
+                                  HeightRequest="100"
+                                  BackgroundColor="{AppThemeBinding Light=#FAFAFA, Dark=#2A2A2A}"
+                                  HorizontalOptions="Center">
+                                <Label Text="x, y, z"
+                                       FontSize="28"
+                                       TextColor="#7a7a7a"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                            <Label Text="Figure1: Algebra symbols"
+                                   FontSize="12"
+                                   TextColor="#666"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
 
- <Border x:Name="Sec3" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
- <VerticalStackLayout Spacing="6">
- <Label Text="Section3: Factoring" FontAttributes="Bold" />
- <Label Text="Difference of squares: a^2 - b^2 = (a - b)(a + b)." />
- <Label Text="Example: x^2 -9 = (x -3)(x +3)." />
- </VerticalStackLayout>
- </Border>
+                <!-- Section2: Solving Linear Equations -->
+                <Border x:Name="Sec2"
+                       Padding="14"
+                       StrokeThickness="0"
+                       Background="{AppThemeBinding Light=#FFFFFF, Dark=#222}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#000000"
+                               Offset="0,2"
+                               Radius="8"
+                               Opacity="0.12" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Section2: Solving Linear Equations"
+                               FontAttributes="Bold"
+                               FontSize="18" />
+                        <Label Text="Method"
+                               FontAttributes="Bold"
+                               TextColor="#555" />
+                        <Label LineHeight="1.25"
+                               Text="1) Simplify each side2) Move variables to one side3) Move constants to the other4) Divide by coefficient" />
+                        <Label Text="Examples"
+                               FontAttributes="Bold"
+                               Margin="0,6,0,0"
+                               TextColor="#555" />
+                        <Label LineHeight="1.25" Text="•2x +6 =14 →2x =8 → x =4 (Check)." />
+                        <Label LineHeight="1.25"
+                               Text="•3(x −2) +4 =2x +7 →3x −6 +4 =2x +7 → x −2 =7 → x =9." />
+                        <Border Background="{AppThemeBinding Light=#F5F9FF, Dark=#333}"
+                               StrokeThickness="0"
+                               Padding="8"
+                               Margin="0,6,0,0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Label Text="Tip: with fractions, multiply by the LCM to clear denominators."
+                                   LineHeight="1.25" />
+                        </Border>
+                        <!-- Illustration below content -->
+                        <VerticalStackLayout Spacing="4" Margin="0,8,0,0" HorizontalOptions="Center">
+                            <Border Padding="10"
+                                   Background="{AppThemeBinding Light=#EEF5FF, Dark=#2F2F2F}"
+                                   StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8" />
+                                </Border.StrokeShape>
+                                <Label Text="2x +6 =14"
+                                       FontSize="26"
+                                       FontAttributes="Bold"
+                                       TextColor="#1E88E5"
+                                       HorizontalTextAlignment="Center" />
+                            </Border>
+                            <Label Text="Figure2: Linear equation"
+                                   FontSize="12"
+                                   TextColor="#666"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
 
- <Border x:Name="Sec4" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
- <VerticalStackLayout Spacing="6">
- <Label Text="Section4: Linear Functions" FontAttributes="Bold" />
- <Label Text="Slope-intercept form: y = m*x + b (m: slope, b: y-intercept)." />
- </VerticalStackLayout>
- </Border>
+                <!-- Section3: Factoring -->
+                <Border x:Name="Sec3"
+                       Padding="14"
+                       StrokeThickness="0"
+                       Background="{AppThemeBinding Light=#FFFFFF, Dark=#222}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#000000"
+                               Offset="0,2"
+                               Radius="8"
+                               Opacity="0.12" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Section3: Factoring"
+                               FontAttributes="Bold"
+                               FontSize="18" />
+                        <Label Text="Patterns"
+                               FontAttributes="Bold"
+                               TextColor="#555" />
+                        <Label LineHeight="1.25" Text="• GCF:6x +9 =3(2x +3)." />
+                        <Label LineHeight="1.25"
+                               Text="• Difference of squares: a² − b² = (a − b)(a + b)." />
+                        <Label LineHeight="1.25"
+                               Text="• Trinomials: x² + bx + c → numbers that multiply to c and add to b." />
+                        <Label Text="Examples"
+                               FontAttributes="Bold"
+                               Margin="0,6,0,0"
+                               TextColor="#555" />
+                        <Label LineHeight="1.25" Text="• x² +5x +6 = (x +2)(x +3)." />
+                        <Label LineHeight="1.25"
+                               Text="• Grouping: ax + ay + bx + by = (a + b)(x + y)." />
+                        <Border Background="{AppThemeBinding Light=#F5FFF7, Dark=#333}"
+                               StrokeThickness="0"
+                               Padding="8"
+                               Margin="0,6,0,0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Label Text="Zero-product rule: if p·q =0 then p =0 or q =0."
+                                   LineHeight="1.25" />
+                        </Border>
+                        <!-- Illustration below content -->
+                        <VerticalStackLayout Spacing="4" Margin="0,8,0,0" HorizontalOptions="Center">
+                            <Border Padding="10"
+                                   Background="{AppThemeBinding Light=#E9FFF0, Dark=#2F2F2F}"
+                                   StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8" />
+                                </Border.StrokeShape>
+                                <Label Text="(x −3)(x +3)"
+                                       FontSize="26"
+                                       FontAttributes="Bold"
+                                       TextColor="#2E7D32"
+                                       HorizontalTextAlignment="Center" />
+                            </Border>
+                            <Label Text="Figure3: Factored form"
+                                   FontSize="12"
+                                   TextColor="#666"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
 
- <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
- <Label x:Name="SectionLabel" Text="Section1 of4" VerticalOptions="Center" />
- <HorizontalStackLayout Grid.Column="1" Spacing="8">
- <Button Text="Prev" Clicked="OnPrevClicked" />
- <Button Text="Next" Clicked="OnNextClicked" />
- </HorizontalStackLayout>
- </Grid>
+                <!-- Section4: Linear Functions -->
+                <Border x:Name="Sec4"
+                       Padding="14"
+                       StrokeThickness="0"
+                       Background="{AppThemeBinding Light=#FFFFFF, Dark=#222}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#000000"
+                               Offset="0,2"
+                               Radius="8"
+                               Opacity="0.12" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Section4: Linear Functions"
+                               FontAttributes="Bold"
+                               FontSize="18" />
+                        <Label Text="Key ideas"
+                               FontAttributes="Bold"
+                               TextColor="#555" />
+                        <Label LineHeight="1.25"
+                               Text="• Slope-intercept: y = m x + b (m slope, b intercept)." />
+                        <Label LineHeight="1.25" Text="• Slope: m = (y₂ − y₁) / (x₂ − x₁)." />
+                        <Label LineHeight="1.25"
+                               Text="• Parallel: equal slopes; Perpendicular: m₁ · m₂ = −1." />
+                        <Label LineHeight="1.25"
+                               Text="• Intercepts: x =0 → y-intercept; y =0 → x-intercept." />
+                        <Label Text="Example"
+                               FontAttributes="Bold"
+                               Margin="0,6,0,0"
+                               TextColor="#555" />
+                        <Label LineHeight="1.25" Text="•2x −3y =6 → y = (2/3)x −2." />
+                        <!-- Illustration below content -->
+                        <VerticalStackLayout Spacing="4" Margin="0,8,0,0" HorizontalOptions="Center">
+                            <Grid WidthRequest="200"
+                                  HeightRequest="150"
+                                  BackgroundColor="{AppThemeBinding Light=#FAFAFA, Dark=#2A2A2A}"
+                                  Padding="8">
+                                <shapes:Line X1="16" Y1="120" X2="180" Y2="120" Stroke="#808080" StrokeThickness="2" />
+                                <shapes:Line X1="32" Y1="140" X2="32" Y2="16" Stroke="#808080" StrokeThickness="2" />
+                                <shapes:Line X1="32" Y1="100" X2="170" Y2="36" Stroke="#E53935" StrokeThickness="3" />
+                            </Grid>
+                            <Label Text="Figure4: Line on axes"
+                                   FontSize="12"
+                                   TextColor="#666"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
 
- <Button Text="Back" Clicked="OnBackClicked" />
- </VerticalStackLayout>
- </ScrollView>
- </Grid>
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <Label x:Name="SectionLabel"
+                           Text="Section1 of4"
+                           VerticalOptions="Center" />
+                    <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                        <Button Text="Prev"
+                                Clicked="OnPrevClicked" />
+                        <Button x:Name="NextButton"
+                                Text="Next"
+                                Clicked="OnNextClicked" />
+                    </HorizontalStackLayout>
+                </Grid>
+
+                <Button x:Name="PrimaryActionButton"
+                        Text="Back"
+                        Clicked="OnPrimaryActionClicked" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

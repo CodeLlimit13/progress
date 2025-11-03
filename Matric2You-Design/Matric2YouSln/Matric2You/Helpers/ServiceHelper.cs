@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Matric2You.Helpers;
 
+// Simple service locator for places we don't have direct DI
 public static class ServiceHelper
 {
  public static IServiceProvider? Services { get; private set; }

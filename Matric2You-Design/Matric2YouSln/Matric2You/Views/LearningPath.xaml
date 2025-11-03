@@ -17,18 +17,18 @@
  <!-- Header: user name -->
  <Label Text="{Binding UserName, StringFormat='Welcome, {0}'}" FontAttributes="Bold" FontSize="22" />
 
- <!-- Four dashboard blocks:2x2 -->
+ <!-- Dashboard blocks -->
  <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
  <Border Grid.Row="0" Grid.Column="0" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F2F2F2, Dark=#222}">
  <VerticalStackLayout>
- <Label Text="Total Tests" FontAttributes="Bold" />
- <Label Text="{Binding TotalTests}" FontSize="18" />
+ <Label Text="Total Activities" FontAttributes="Bold" />
+ <Label Text="{Binding TotalActivities}" FontSize="18" />
  </VerticalStackLayout>
  </Border>
  <Border Grid.Row="0" Grid.Column="1" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F2F2F2, Dark=#222}">
  <VerticalStackLayout>
- <Label Text="Completed Tests" FontAttributes="Bold" />
- <Label Text="{Binding CompletedTests}" FontSize="18" />
+ <Label Text="Completed" FontAttributes="Bold" />
+ <Label Text="{Binding CompletedActivities}" FontSize="18" />
  </VerticalStackLayout>
  </Border>
  <Border Grid.Row="1" Grid.Column="0" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F2F2F2, Dark=#222}">
@@ -39,13 +39,13 @@
  </Border>
  <Border Grid.Row="1" Grid.Column="1" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F2F2F2, Dark=#222}">
  <VerticalStackLayout>
- <Label Text="Average Score" FontAttributes="Bold" />
+ <Label Text="Average Test Score" FontAttributes="Bold" />
  <Label Text="{Binding AverageScore, StringFormat='{0:0.#}%'}" FontSize="18" />
  </VerticalStackLayout>
  </Border>
  </Grid>
 
- <!-- Mathematics Tests (only UI retained) -->
+ <!-- Mathematics Tests -->
  <Label Text="Mathematics Tests" FontAttributes="Bold" FontSize="20" />
  <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
  <!-- Practice -->
@@ -65,9 +65,9 @@
  <ProgressBar Progress="{Binding PracticeProgress.ScorePercent, Converter={StaticResource PercentTo0to1Converter}}" />
  </VerticalStackLayout>
 
- <!-- Quizz (two z) -->
+ <!-- Quiz -->
  <VerticalStackLayout Grid.Column="1">
- <Button Text="Quizz" Clicked="OnQuizClicked" />
+ <Button Text="Quiz" Clicked="OnQuizClicked" />
  <Label Text="{Binding QuizProgress.ScorePercent, StringFormat='Score: {0:0.#}%'}" HorizontalTextAlignment="Center" />
  <Label HorizontalTextAlignment="Center">
  <Label.FormattedText>
@@ -100,16 +100,20 @@
  </VerticalStackLayout>
  </Grid>
 
- <!-- Learning Content (renamed from Study Pages) -->
+ <!-- Learning Content -->
  <Label Text="Learning Content" FontAttributes="Bold" FontSize="20" />
  <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
- <VerticalStackLayout Grid.Column="0">
+ <VerticalStackLayout Grid.Column="0" Spacing="4">
  <Button Text="Algebra" Clicked="OnAlgebraClicked" />
  <Label Text="Foundations: variables, equations, factoring." TextColor="Gray" />
+ <ProgressBar Progress="{Binding AlgebraStudy.CompletionPercent, Converter={StaticResource PercentTo0to1Converter}}" />
+ <Label Text="{Binding AlgebraStudy.CompletionPercent, StringFormat='{0:0.#}% complete'}" FontSize="12" />
  </VerticalStackLayout>
- <VerticalStackLayout Grid.Column="1">
+ <VerticalStackLayout Grid.Column="1" Spacing="4">
  <Button Text="Geometry" Clicked="OnGeometryClicked" />
  <Label Text="Angles, triangles, area, circles." TextColor="Gray" />
+ <ProgressBar Progress="{Binding GeometryStudy.CompletionPercent, Converter={StaticResource PercentTo0to1Converter}}" />
+ <Label Text="{Binding GeometryStudy.CompletionPercent, StringFormat='{0:0.#}% complete'}" FontSize="12" />
  </VerticalStackLayout>
  </Grid>
 

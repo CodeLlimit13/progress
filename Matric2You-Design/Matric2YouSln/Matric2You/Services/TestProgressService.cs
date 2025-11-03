@@ -1,3 +1,4 @@
+// Tracks local progress and results of math tests (Practice, Quiz, Exam).
 using System.Text.Json;
 using Matric2You.Models;
 
@@ -5,52 +6,67 @@ namespace Matric2You.Services;
 
 public interface ITestProgressService
 {
- MathTestProgress GetProgress(MathTestType type);
- void SaveResult(MathTestType type, int totalQuestions, int correct);
- void Reset(MathTestType type);
+    MathTestProgress GetProgress(MathTestType type);
+    void SaveResult(MathTestType type, int totalQuestions, int correct);
+    void Reset(MathTestType type);
 }
 
 public sealed class TestProgressService : ITestProgressService
 {
- private const string KeyPrefix = "math_test_progress_";
- private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    // Preference key prefix per test type
+    private const string KeyPrefix = "math_test_progress_";
 
- public MathTestProgress GetProgress(MathTestType type)
- {
- var key = KeyPrefix + type;
- var json = Preferences.Default.Get(key, string.Empty);
- if (string.IsNullOrWhiteSpace(json))
- {
- return new MathTestProgress { Type = type, TotalQuestions =5, Answered =0, Correct =0 };
- }
- try
- {
- var p = JsonSerializer.Deserialize<MathTestProgress>(json, JsonOptions);
- return p ?? new MathTestProgress { Type = type, TotalQuestions =5 };
- }
- catch
- {
- return new MathTestProgress { Type = type, TotalQuestions =5 };
- }
- }
+    // System.Text.Json options used for compact storage
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
- public void SaveResult(MathTestType type, int totalQuestions, int correct)
- {
- var p = new MathTestProgress
- {
- Type = type,
- TotalQuestions = totalQuestions,
- Answered = totalQuestions,
- Correct = correct
- };
- var key = KeyPrefix + type;
- var json = JsonSerializer.Serialize(p, JsonOptions);
- Preferences.Default.Set(key, json);
- }
+    // Load persisted progress; return sensible defaults if not present or invalid
+    public MathTestProgress GetProgress(MathTestType type)
+    {
+        var key = KeyPrefix + type;
+        var json = Preferences.Default.Get(key, string.Empty);
 
- public void Reset(MathTestType type)
- {
- var key = KeyPrefix + type;
- Preferences.Default.Remove(key);
- }
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return new MathTestProgress
+            {
+                Type = type,
+                TotalQuestions = 5,
+                Answered = 0,
+                Correct = 0
+            };
+        }
+
+        try
+        {
+            var p = JsonSerializer.Deserialize<MathTestProgress>(json, JsonOptions);
+            return p ?? new MathTestProgress { Type = type, TotalQuestions = 5 };
+        }
+        catch
+        {
+            return new MathTestProgress { Type = type, TotalQuestions = 5 };
+        }
+    }
+
+    // Save final result for a test attempt (all questions answered)
+    public void SaveResult(MathTestType type, int totalQuestions, int correct)
+    {
+        var p = new MathTestProgress
+        {
+            Type = type,
+            TotalQuestions = totalQuestions,
+            Answered = totalQuestions,
+            Correct = correct
+        };
+
+        var key = KeyPrefix + type;
+        var json = JsonSerializer.Serialize(p, JsonOptions);
+        Preferences.Default.Set(key, json);
+    }
+
+    // Clear the stored progress for a given test type
+    public void Reset(MathTestType type)
+    {
+        var key = KeyPrefix + type;
+        Preferences.Default.Remove(key);
+    }
 }

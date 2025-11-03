@@ -3,22 +3,55 @@
  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
  x:Class="Matric2You.Views.MathTestPage"
  Title="Math Test">
- <ScrollView>
- <VerticalStackLayout Padding="16" Spacing="16">
- <Label x:Name="TitleLabel" FontSize="20" FontAttributes="Bold"/>
+ <Grid RowDefinitions="Auto,*,Auto" Padding="16" RowSpacing="12">
+ <Label x:Name="TitleLabel" Grid.Row="0" FontSize="20" FontAttributes="Bold"/>
 
- <CollectionView x:Name="QuestionsList" SelectionMode="None">
- <CollectionView.ItemTemplate>
+ <ScrollView Grid.Row="1">
+ <VerticalStackLayout Spacing="12">
+ <Label Text="{Binding ProgressText}" FontAttributes="Bold" />
+
+ <Border BackgroundColor="{AppThemeBinding Light=#F7F7F7, Dark=#222}" Padding="12" StrokeThickness="0">
+ <VerticalStackLayout Spacing="12">
+ <Label Text="{Binding CurrentQuestion.Text}" FontAttributes="Bold" />
+ 
+ <!-- Options rendered as radio buttons -->
+ <VerticalStackLayout x:Name="OptionsPanel"
+ BindableLayout.ItemsSource="{Binding CurrentQuestion.Options}"
+ Spacing="8">
+ <BindableLayout.ItemTemplate>
  <DataTemplate>
- <VerticalStackLayout Spacing="8" Padding="8" BackgroundColor="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
- <Label Text="{Binding Text}" FontAttributes="Bold" />
- <Picker ItemsSource="{Binding Options}" SelectedIndex="{Binding SelectedIndex}"/>
- </VerticalStackLayout>
+ <RadioButton Content="{Binding .}"
+ GroupName="CurrentQuestionGroup"
+ CheckedChanged="OnOptionCheckedChanged" />
  </DataTemplate>
- </CollectionView.ItemTemplate>
- </CollectionView>
-
- <Button Text="Submit" Clicked="OnSubmitClicked"/>
+ </BindableLayout.ItemTemplate>
+ </VerticalStackLayout>
+ </VerticalStackLayout>
+ </Border>
  </VerticalStackLayout>
  </ScrollView>
+
+ <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+ <Button Text="Prev" Command="{Binding PrevCommand}" IsEnabled="{Binding HasPrev}"/>
+ <Label Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Center" Text="{Binding ProgressText}"/>
+
+ <!-- Next button (hidden on last question) -->
+ <Button x:Name="NextBtn" Grid.Column="2" Text="Next" Command="{Binding NextCommand}" IsEnabled="{Binding HasNext}" IsVisible="True">
+ <Button.Triggers>
+ <DataTrigger TargetType="Button" Binding="{Binding IsOnLast}" Value="True">
+ <Setter Property="IsVisible" Value="False" />
+ </DataTrigger>
+ </Button.Triggers>
+ </Button>
+
+ <!-- Submit button (shown only on last question) -->
+ <Button x:Name="SubmitBtn" Grid.Column="2" Text="Submit" Command="{Binding SubmitCommand}" IsVisible="False">
+ <Button.Triggers>
+ <DataTrigger TargetType="Button" Binding="{Binding IsOnLast}" Value="True">
+ <Setter Property="IsVisible" Value="True" />
+ </DataTrigger>
+ </Button.Triggers>
+ </Button>
+ </Grid>
+ </Grid>
 </ContentPage>

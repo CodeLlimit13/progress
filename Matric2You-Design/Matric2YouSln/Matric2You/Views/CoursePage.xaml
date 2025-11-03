@@ -5,159 +5,150 @@
  x:Class="Matric2You.Views.CoursePage"
  Title="">
 
- <ScrollView>
+    <ScrollView>
+        <VerticalStackLayout 
+            Padding="15" 
+            Spacing="15">
+            
+        <Label
+            Text="Courses"
+            FontAttributes="Bold"
+            FontSize="Large"/>
+
+        <Border 
+            Stroke="Black"
+            StrokeThickness="1.5"
+            StrokeShape="RoundRectangle 8"
+            Padding="10">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Spacing="4">
+                    <Image Source="dotnet_bot.png" 
+                     WidthRequest="60"
+                     HeightRequest="60"
+                     VerticalOptions="Start" 
+                     HorizontalOptions="Start" />
+                    <Label Text="Course Name1" FontSize="18" FontAttributes="Bold" />
+                    <Label Text="Duration:6 Weeks" FontSize="14" TextColor="Gray"/>
+                    <Label Text="Difficulty: Intermediate" FontSize="14" TextColor="Gray"/>
+                </VerticalStackLayout>
+
+            <Button 
+             Text="Start" 
+             Clicked="OnNextClicked"
+             Grid.Column="1"
+             VerticalOptions="Center"
+             HorizontalOptions="End"
+             BackgroundColor="#0078D7"
+             TextColor="White"
+             CornerRadius="8"
+             Padding="15,8"/>
+            
+            </Grid>
+            </Border>
 
 
+             <Border 
+             Stroke="Black"
+             StrokeThickness="1.5"
+             StrokeShape="RoundRectangle 8"
+             Padding="10">
 
- <VerticalStackLayout 
- Padding="15" 
- Spacing="15">
+             <Grid ColumnDefinitions="*,Auto">
+             <VerticalStackLayout Spacing="4">
+             <Label Text="Course Name2" FontSize="18" FontAttributes="Bold" />
+             <Label Text="Duration:4 Weeks" FontSize="14" TextColor="Gray"/>
+             <Label Text="Difficulty: Beginner" FontSize="14" TextColor="Gray"/>
+             </VerticalStackLayout>
 
- <Label
- Text="Courses"
- FontAttributes="Bold"
- FontSize="Large" 
- />
+             <Button 
+             Text="Start" 
+             Grid.Column="1"
+             VerticalOptions="Center"
+             HorizontalOptions="End"
+             BackgroundColor="#0078D7"
+             TextColor="White"
+             CornerRadius="8"
+             Padding="15,8"/>
+             </Grid>
+             </Border>
+            
+             <Border 
+             Stroke="Black"
+             StrokeThickness="1.5"
+             StrokeShape="RoundRectangle 8"
+             Padding="10">
+
+             <Grid ColumnDefinitions="*,Auto">
+             <VerticalStackLayout Spacing="4">
+             <Label Text="Course Name3" FontSize="18" FontAttributes="Bold" />
+             <Label Text="Duration:8 Weeks" FontSize="14" TextColor="Gray"/>
+             <Label Text="Difficulty: Advanced" FontSize="14" TextColor="Gray"/>
+             </VerticalStackLayout>
+
+             <Button 
+             Text="Start" 
+             Grid.Column="1"
+             VerticalOptions="Center"
+             HorizontalOptions="End"
+             BackgroundColor="#0078D7"
+             TextColor="White"
+             CornerRadius="8"
+             Padding="15,8"/>
+             </Grid>
+             </Border>
 
 
- <!-- Repeat this block for each course -->
- <Border 
- Stroke="Black"
- StrokeThickness="1.5"
- StrokeShape="RoundRectangle 8"
- Padding="10">
+             <Border 
+             Stroke="Black"
+             StrokeThickness="1.5"
+             StrokeShape="RoundRectangle 8"
+             Padding="10">
 
- <Grid ColumnDefinitions="*,Auto">
- <!-- Left side: Course info -->
- <VerticalStackLayout Spacing="4">
- <Image Source="dotnet_bot.png" 
- WidthRequest="60"
- HeightRequest="60"
- VerticalOptions="Start" 
- HorizontalOptions="Start" />
- <Label Text="Course Name1" FontSize="18" FontAttributes="Bold" />
- <Label Text="Duration:6 Weeks" FontSize="14" TextColor="Gray"/>
- <Label Text="Difficulty: Intermediate" FontSize="14" TextColor="Gray"/>
- </VerticalStackLayout>
+             <Grid ColumnDefinitions="*,Auto">
+             <VerticalStackLayout Spacing="4">
+             <Label Text="Course Name4" FontSize="18" FontAttributes="Bold" />
+             <Label Text="Duration:2 Weeks" FontSize="14" TextColor="Gray"/>
+             <Label Text="Difficulty: Beginner" FontSize="14" TextColor="Gray"/>
+             </VerticalStackLayout>
 
- <!-- Right side: Start button -->
- <Button 
- Text="Start" 
- Clicked="OnNextClicked"
- Grid.Column="1"
- VerticalOptions="Center"
- HorizontalOptions="End"
- BackgroundColor="#0078D7"
- TextColor="White"
- CornerRadius="8"
- Padding="15,8"/>
- </Grid>
- </Border>
+             <Button 
+             Text="Start" 
+             Grid.Column="1"
+             VerticalOptions="Center"
+             HorizontalOptions="End"
+             BackgroundColor="#0078D7"
+             TextColor="White"
+             CornerRadius="8"
+             Padding="15,8"/>
+             </Grid>
+             </Border>
 
- <!-- Course Block2 -->
- <Border 
- Stroke="Black"
- StrokeThickness="1.5"
- StrokeShape="RoundRectangle 8"
- Padding="10">
+             <Border 
+             Stroke="Black"
+             StrokeThickness="1.5"
+             StrokeShape="RoundRectangle 8"
+             Padding="10">
 
- <Grid ColumnDefinitions="*,Auto">
- <VerticalStackLayout Spacing="4">
- <Label Text="Course Name2" FontSize="18" FontAttributes="Bold" />
- <Label Text="Duration:4 Weeks" FontSize="14" TextColor="Gray"/>
- <Label Text="Difficulty: Beginner" FontSize="14" TextColor="Gray"/>
- </VerticalStackLayout>
+             <Grid ColumnDefinitions="*,Auto">
+             <VerticalStackLayout Spacing="4">
+             <Label Text="Course Name5" FontSize="18" FontAttributes="Bold" />
+             <Label Text="Duration:10 Weeks" FontSize="14" TextColor="Gray"/>
+             <Label Text="Difficulty: Expert" FontSize="14" TextColor="Gray"/>
+             </VerticalStackLayout>
 
- <Button 
- Text="Start" 
- Grid.Column="1"
- VerticalOptions="Center"
- HorizontalOptions="End"
- BackgroundColor="#0078D7"
- TextColor="White"
- CornerRadius="8"
- Padding="15,8"/>
- </Grid>
- </Border>
+             <Button 
+             Text="Start" 
+             Grid.Column="1"
+             VerticalOptions="Center"
+             HorizontalOptions="End"
+             BackgroundColor="#0078D7"
+             TextColor="White"
+             CornerRadius="8"
+             Padding="15,8"/>
+            </Grid>
+            </Border>
 
- <!-- Course Block3 -->
- <Border 
- Stroke="Black"
- StrokeThickness="1.5"
- StrokeShape="RoundRectangle 8"
- Padding="10">
-
- <Grid ColumnDefinitions="*,Auto">
- <VerticalStackLayout Spacing="4">
- <Label Text="Course Name3" FontSize="18" FontAttributes="Bold" />
- <Label Text="Duration:8 Weeks" FontSize="14" TextColor="Gray"/>
- <Label Text="Difficulty: Advanced" FontSize="14" TextColor="Gray"/>
- </VerticalStackLayout>
-
- <Button 
- Text="Start" 
- Grid.Column="1"
- VerticalOptions="Center"
- HorizontalOptions="End"
- BackgroundColor="#0078D7"
- TextColor="White"
- CornerRadius="8"
- Padding="15,8"/>
- </Grid>
- </Border>
-
- <!-- Course Block4 -->
- <Border 
- Stroke="Black"
- StrokeThickness="1.5"
- StrokeShape="RoundRectangle 8"
- Padding="10">
-
- <Grid ColumnDefinitions="*,Auto">
- <VerticalStackLayout Spacing="4">
- <Label Text="Course Name4" FontSize="18" FontAttributes="Bold" />
- <Label Text="Duration:2 Weeks" FontSize="14" TextColor="Gray"/>
- <Label Text="Difficulty: Beginner" FontSize="14" TextColor="Gray"/>
- </VerticalStackLayout>
-
- <Button 
- Text="Start" 
- Grid.Column="1"
- VerticalOptions="Center"
- HorizontalOptions="End"
- BackgroundColor="#0078D7"
- TextColor="White"
- CornerRadius="8"
- Padding="15,8"/>
- </Grid>
- </Border>
-
- <!-- Course Block5 -->
- <Border 
- Stroke="Black"
- StrokeThickness="1.5"
- StrokeShape="RoundRectangle 8"
- Padding="10">
-
- <Grid ColumnDefinitions="*,Auto">
- <VerticalStackLayout Spacing="4">
- <Label Text="Course Name5" FontSize="18" FontAttributes="Bold" />
- <Label Text="Duration:10 Weeks" FontSize="14" TextColor="Gray"/>
- <Label Text="Difficulty: Expert" FontSize="14" TextColor="Gray"/>
- </VerticalStackLayout>
-
- <Button 
- Text="Start" 
- Grid.Column="1"
- VerticalOptions="Center"
- HorizontalOptions="End"
- BackgroundColor="#0078D7"
- TextColor="White"
- CornerRadius="8"
- Padding="15,8"/>
- </Grid>
- </Border>
-
- </VerticalStackLayout>
- </ScrollView>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

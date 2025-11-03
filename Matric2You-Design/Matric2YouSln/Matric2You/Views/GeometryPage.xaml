@@ -1,56 +1,136 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+ xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
  x:Class="Matric2You.Views.GeometryPage"
  Title="Geometry">
  <Grid RowDefinitions="Auto,Auto,*" Padding="16" RowSpacing="12">
  <Label Grid.Row="0" Text="Geometry Study Guide" FontAttributes="Bold" FontSize="22" />
  <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
- <Label Text="Progress:" VerticalOptions="Center"/>
+ <Label Text="Progress:" VerticalOptions="Center" />
  <ProgressBar x:Name="Progress" Grid.Column="1" Progress="0" WidthRequest="180" />
  </Grid>
  <ScrollView x:Name="Scroller" Grid.Row="2">
- <VerticalStackLayout Spacing="12">
- <Border x:Name="Sec1" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
- <VerticalStackLayout Spacing="6">
- <Label Text="Section1: Angles" FontAttributes="Bold" />
- <Label Text="- Right angle:90 deg; Acute: &lt;90; Obtuse: &gt;90." />
- <Label Text="- Complementary sum:90; Supplementary sum:180." />
+ <VerticalStackLayout Spacing="16">
+
+ <!-- Section1: Angles -->
+ <Border x:Name="Sec1" Padding="14" StrokeThickness="0" Background="{AppThemeBinding Light=#FFFFFF, Dark=#222}">
+ <Border.StrokeShape>
+ <RoundRectangle CornerRadius="10" />
+ </Border.StrokeShape>
+ <Border.Shadow>
+ <Shadow Brush="#000000" Offset="0,2" Radius="8" Opacity="0.12" />
+ </Border.Shadow>
+ <VerticalStackLayout Spacing="10">
+ <Label Text="Section1: Angles" FontAttributes="Bold" FontSize="18" />
+ <Label Text="Key ideas" FontAttributes="Bold" TextColor="#555" />
+ <Label LineHeight="1.25" Text="• Right:90°, Acute: &lt;90°, Obtuse: &gt;90°." />
+ <Label LineHeight="1.25" Text="• Complementary sum to90°, Supplementary sum to180°." />
+ <Label LineHeight="1.25" Text="• Vertical angles are equal; adjacent share a side." />
+ <Label LineHeight="1.25" Text="• Corresponding and alternate interior angles are equal (parallel lines)." />
+ <Label Text="Example" FontAttributes="Bold" Margin="0,6,0,0" TextColor="#555" />
+ <Label LineHeight="1.25" Text="• If one acute angle is35°, its complement is55°." />
+ <!-- Illustration below content -->
+ <VerticalStackLayout Spacing="4" Margin="0,8,0,0" HorizontalOptions="Center">
+ <Grid WidthRequest="180" HeightRequest="130" BackgroundColor="{AppThemeBinding Light=#FAFAFA, Dark=#2A2A2A}" Padding="8">
+ <shapes:Line X1="20" Y1="100" X2="160" Y2="100" Stroke="#808080" StrokeThickness="2" />
+ <shapes:Line X1="20" Y1="100" X2="80" Y2="40" Stroke="#1E88E5" StrokeThickness="3" />
+ </Grid>
+ <Label Text="Figure1: Angle rays" FontSize="12" TextColor="#666" HorizontalTextAlignment="Center" />
+ </VerticalStackLayout>
  </VerticalStackLayout>
  </Border>
 
- <Border x:Name="Sec2" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
- <VerticalStackLayout Spacing="6">
- <Label Text="Section2: Triangles" FontAttributes="Bold" />
- <Label Text="- Pythagorean theorem: a^2 + b^2 = c^2 (right triangles)." />
- <Label Text="- Interior angles sum to180." />
+ <!-- Section2: Triangles -->
+ <Border x:Name="Sec2" Padding="14" StrokeThickness="0" Background="{AppThemeBinding Light=#FFFFFF, Dark=#222}">
+ <Border.StrokeShape>
+ <RoundRectangle CornerRadius="10" />
+ </Border.StrokeShape>
+ <Border.Shadow>
+ <Shadow Brush="#000000" Offset="0,2" Radius="8" Opacity="0.12" />
+ </Border.Shadow>
+ <VerticalStackLayout Spacing="10">
+ <Label Text="Section2: Triangles" FontAttributes="Bold" FontSize="18" />
+ <Label Text="Key ideas" FontAttributes="Bold" TextColor="#555" />
+ <Label LineHeight="1.25" Text="• Types: scalene, isosceles, equilateral." />
+ <Label LineHeight="1.25" Text="• Angle sum:180°. Exterior angle equals sum of two remote interior angles." />
+ <Label LineHeight="1.25" Text="• Pythagorean: a² + b² = c² (right)." />
+ <Label LineHeight="1.25" Text="• Special right:45-45-90 (x, x, x√2),30-60-90 (x, x√3,2x)." />
+ <Label LineHeight="1.25" Text="• Triangle inequality: two sides sum greater than the third." />
+ <!-- Illustration below content -->
+ <VerticalStackLayout Spacing="4" Margin="0,8,0,0" HorizontalOptions="Center">
+ <Grid WidthRequest="180" HeightRequest="130" BackgroundColor="{AppThemeBinding Light=#FAFAFA, Dark=#2A2A2A}" Padding="8">
+ <shapes:Polygon Points="20,110160,110160,40" Stroke="#E53935" Fill="#FFEBEE" StrokeThickness="2" />
+ <shapes:Line X1="148" Y1="110" X2="160" Y2="110" Stroke="#424242" StrokeThickness="2" />
+ <shapes:Line X1="160" Y1="98" X2="160" Y2="110" Stroke="#424242" StrokeThickness="2" />
+ </Grid>
+ <Label Text="Figure2: Right triangle" FontSize="12" TextColor="#666" HorizontalTextAlignment="Center" />
+ </VerticalStackLayout>
  </VerticalStackLayout>
  </Border>
-
- <Border x:Name="Sec3" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
- <VerticalStackLayout Spacing="6">
- <Label Text="Section3: Area &amp; Perimeter" FontAttributes="Bold" />
- <Label Text="- Rectangle: A = l*w; P =2*(l + w)." />
- <Label Text="- Triangle: A =0.5*b*h." />
+ 
+ <!-- Section3: Area & Perimeter -->
+ <Border x:Name="Sec3" Padding="14" StrokeThickness="0" Background="{AppThemeBinding Light=#FFFFFF, Dark=#222}">
+ <Border.StrokeShape>
+ <RoundRectangle CornerRadius="10" />
+ </Border.StrokeShape>
+ <Border.Shadow>
+ <Shadow Brush="#000000" Offset="0,2" Radius="8" Opacity="0.12" />
+ </Border.Shadow>
+ <VerticalStackLayout Spacing="10">
+ <Label Text="Section3: Area &amp; Perimeter" FontAttributes="Bold" FontSize="18" />
+ <Label Text="Formulas" FontAttributes="Bold" TextColor="#555" />
+ <Label LineHeight="1.25" Text="• Rectangle: A = l × w; P =2(l + w)." />
+ <Label LineHeight="1.25" Text="• Square: A = s²; P =4s." />
+ <Label LineHeight="1.25" Text="• Triangle: A =1/2 × base × height." />
+ <Label LineHeight="1.25" Text="• Parallelogram: A = base × height." />
+ <Label LineHeight="1.25" Text="• Trapezoid: A =1/2 × (b₁ + b₂) × h." />
+ <!-- Illustration below content -->
+ <VerticalStackLayout Spacing="4" Margin="0,8,0,0" HorizontalOptions="Center">
+ <Grid WidthRequest="180" HeightRequest="130" BackgroundColor="{AppThemeBinding Light=#FAFAFA, Dark=#2A2A2A}" Padding="8" RowDefinitions="*,*" ColumnDefinitions="*,*">
+ <shapes:Rectangle Grid.Row="0" Grid.Column="0" WidthRequest="70" HeightRequest="45" Fill="#E3F2FD" Stroke="#1E88E5" StrokeThickness="2" HorizontalOptions="Start" VerticalOptions="Start" />
+ <shapes:Polygon Grid.Row="1" Grid.Column="1" Points="110,90160,90160,40" Stroke="#2E7D32" Fill="#E8F5E9" StrokeThickness="2" />
+ </Grid>
+ <Label Text="Figure3: Rectangle and triangle" FontSize="12" TextColor="#666" HorizontalTextAlignment="Center" />
+ </VerticalStackLayout>
  </VerticalStackLayout>
  </Border>
-
- <Border x:Name="Sec4" Padding="12" StrokeThickness="0" Background="{AppThemeBinding Light=#F7F7F7, Dark=#222}">
- <VerticalStackLayout Spacing="6">
- <Label Text="Section4: Circles" FontAttributes="Bold" />
- <Label Text="- Circumference: C =2*pi*r; Area: A = pi*r^2." />
+ 
+ <!-- Section4: Circles -->
+ <Border x:Name="Sec4" Padding="14" StrokeThickness="0" Background="{AppThemeBinding Light=#FFFFFF, Dark=#222}">
+ <Border.StrokeShape>
+ <RoundRectangle CornerRadius="10" />
+ </Border.StrokeShape>
+ <Border.Shadow>
+ <Shadow Brush="#000000" Offset="0,2" Radius="8" Opacity="0.12" />
+ </Border.Shadow>
+ <VerticalStackLayout Spacing="10">
+ <Label Text="Section4: Circles" FontAttributes="Bold" FontSize="18" />
+ <Label Text="Formulas" FontAttributes="Bold" TextColor="#555" />
+ <Label LineHeight="1.25" Text="• Circumference: C =2πr or πd." />
+ <Label LineHeight="1.25" Text="• Area: A = πr²." />
+ <Label LineHeight="1.25" Text="• Arc length: L = (θ/360°) ×2πr; Sector: (θ/360°) × πr²." />
+ <Label LineHeight="1.25" Text="• Diameter d =2r; π ≈3.1416." />
+ <!-- Illustration below content -->
+ <VerticalStackLayout Spacing="4" Margin="0,8,0,0" HorizontalOptions="Center">
+ <Grid WidthRequest="180" HeightRequest="130" BackgroundColor="{AppThemeBinding Light=#FAFAFA, Dark=#2A2A2A}">
+ <shapes:Ellipse WidthRequest="100" HeightRequest="100" Fill="#FFF3E0" Stroke="#FB8C00" StrokeThickness="2" HorizontalOptions="Center" VerticalOptions="Center" />
+ <shapes:Line X1="90" Y1="65" X2="140" Y2="65" Stroke="#FB8C00" StrokeThickness="2" />
+ </Grid>
+ <Label Text="Figure4: Circle radius" FontSize="12" TextColor="#666" HorizontalTextAlignment="Center" />
+ </VerticalStackLayout>
  </VerticalStackLayout>
  </Border>
-
+ 
  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
  <Label x:Name="SectionLabel" Text="Section1 of4" VerticalOptions="Center" />
  <HorizontalStackLayout Grid.Column="1" Spacing="8">
  <Button Text="Prev" Clicked="OnPrevClicked" />
- <Button Text="Next" Clicked="OnNextClicked" />
+ <Button x:Name="NextButton" Text="Next" Clicked="OnNextClicked" />
  </HorizontalStackLayout>
  </Grid>
 
- <Button Text="Back" Clicked="OnBackClicked" />
+ <Button x:Name="PrimaryActionButton" Text="Back" Clicked="OnPrimaryActionClicked" />
  </VerticalStackLayout>
  </ScrollView>
  </Grid>

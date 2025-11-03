@@ -4,18 +4,21 @@ using Microsoft.Maui.Controls;
 
 namespace Matric2You.Helpers
 {
+    // True when value is not null
     public class NotNullToBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value != null;
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 
+    // True when value is null
     public class NullToBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value == null;
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 
+    // Maps percentage (0..100) to ProgressBar-friendly0..1 range
     public class PercentTo0to1Converter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

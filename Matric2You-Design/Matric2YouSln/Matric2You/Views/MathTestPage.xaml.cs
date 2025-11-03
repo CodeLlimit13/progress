@@ -13,8 +13,21 @@ public partial class MathTestPage : ContentPage
  InitializeComponent();
  BindingContext = _vm = vm;
  TitleLabel.Text = _vm.Title;
- QuestionsList.ItemsSource = _vm.Questions;
  _vm.OnSubmitted += OnSubmitted;
+ }
+
+ private void OnOptionCheckedChanged(object? sender, CheckedChangedEventArgs e)
+ {
+ if (e.Value is true && sender is RadioButton rb && _vm.CurrentQuestion is not null)
+ {
+ var options = _vm.CurrentQuestion.Options;
+ var selectedText = rb.Content?.ToString();
+ var index = Array.IndexOf(options, selectedText);
+ if (index >=0)
+ {
+ _vm.CurrentQuestion.SelectedIndex = index;
+ }
+ }
  }
 
  private async void OnSubmitClicked(object sender, EventArgs e)
